@@ -1,0 +1,2 @@
+# hyacinth
+a minecraft server
