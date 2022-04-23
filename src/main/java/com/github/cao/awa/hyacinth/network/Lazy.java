@@ -6,11 +6,9 @@ import java.util.function.Supplier;
 
 @Deprecated
 public class Lazy<T> {
-    private final Supplier<T> delegate;
     private final Supplier<T> supplier;
 
     public Lazy(Supplier<T> delegate) {
-        this.delegate = delegate;
         supplier = Suppliers.memoize(delegate::get);
     }
 
