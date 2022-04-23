@@ -21,4 +21,7 @@ public abstract class PlayerEntity extends LivingEntity {
         return uuid;
     }
 
+    public boolean isPlayer() {
+        return true;
+    }
 }

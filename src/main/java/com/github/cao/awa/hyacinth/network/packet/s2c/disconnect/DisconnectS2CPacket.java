@@ -23,7 +23,7 @@ public class DisconnectS2CPacket implements Packet<ClientPlayPacketListener> {
 
     @Override
     public void apply(ClientPlayPacketListener clientPlayPacketListener) {
-        clientPlayPacketListener.onDisconnect(this);
+        
     }
 
     public Text getReason() {

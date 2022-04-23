@@ -1,0 +1,41 @@
+package com.github.cao.awa.hyacinth.network.packet.c2s.play;
+
+import com.github.cao.awa.hyacinth.network.packet.Packet;
+import com.github.cao.awa.hyacinth.network.packet.buf.PacketByteBuf;
+import com.github.cao.awa.hyacinth.network.packet.listener.play.ServerPlayPacketListener;
+
+public class BoatPaddleStateC2SPacket
+implements Packet<ServerPlayPacketListener> {
+    private final boolean leftPaddling;
+    private final boolean rightPaddling;
+
+    public BoatPaddleStateC2SPacket(boolean leftPaddling, boolean rightPaddling) {
+        this.leftPaddling = leftPaddling;
+        this.rightPaddling = rightPaddling;
+    }
+
+    public BoatPaddleStateC2SPacket(PacketByteBuf buf) {
+        this.leftPaddling = buf.readBoolean();
+        this.rightPaddling = buf.readBoolean();
+    }
+
+    @Override
+    public void write(PacketByteBuf buf) {
+        buf.writeBoolean(this.leftPaddling);
+        buf.writeBoolean(this.rightPaddling);
+    }
+
+    @Override
+    public void apply(ServerPlayPacketListener serverPlayPacketListener) {
+        serverPlayPacketListener.onBoatPaddleState(this);
+    }
+
+    public boolean isLeftPaddling() {
+        return this.leftPaddling;
+    }
+
+    public boolean isRightPaddling() {
+        return this.rightPaddling;
+    }
+}
+

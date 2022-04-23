@@ -12,7 +12,7 @@ public interface Encoder<A> {
    }
 
    default MapEncoder<A> fieldOf(String name) {
-      return new FieldEncoder(name, this);
+      return new FieldEncoder<>(name, this);
    }
 
    default <B> Encoder<B> comap(final Function<? super B, ? extends A> function) {
@@ -22,7 +22,7 @@ public interface Encoder<A> {
          }
 
          public String toString() {
-            return Encoder.this.toString() + "[comapped]";
+            return Encoder.this + "[comapped]";
          }
       };
    }
@@ -30,13 +30,13 @@ public interface Encoder<A> {
    default <B> Encoder<B> flatComap(final Function<? super B, ? extends DataResult<? extends A>> function) {
       return new Encoder<B>() {
          public <T> DataResult<T> encode(B input, DynamicOps<T> ops, T prefix) {
-            return ((DataResult)function.apply(input)).flatMap((a) -> {
-               return Encoder.this.encode((A) a, ops, prefix);
+            return (function.apply(input)).flatMap((a) -> {
+               return Encoder.this.encode(a, ops, prefix);
             });
          }
 
          public String toString() {
-            return Encoder.this.toString() + "[flatComapped]";
+            return Encoder.this + "[flatComapped]";
          }
       };
    }

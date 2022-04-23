@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class MinecraftVersion
         implements GameVersion {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger("Version:Server");
     public static final GameVersion CURRENT = new MinecraftVersion();
     private final String id;
     private final String name;
@@ -54,9 +54,6 @@ public class MinecraftVersion
         this.buildTime = Date.from(ZonedDateTime.parse(JsonHelper.getString(json, "build_time")).toInstant());
     }
 
-    /*
-     * Enabled aggressive exception aggregation
-     */
     public static GameVersion create() {
         try (InputStream inputStream = MinecraftVersion.class.getResourceAsStream("/version.json");){
             MinecraftVersion minecraftVersion;

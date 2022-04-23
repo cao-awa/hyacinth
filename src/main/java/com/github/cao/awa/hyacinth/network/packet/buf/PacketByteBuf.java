@@ -2,30 +2,37 @@ package com.github.cao.awa.hyacinth.network.packet.buf;
 
 import com.github.cao.awa.hyacinth.math.block.BlockPos;
 import com.github.cao.awa.hyacinth.network.text.Text;
-import com.google.common.io.ByteProcessor;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.ByteBufProcessor;
+import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import io.netty.buffer.*;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
-import io.netty.util.IllegalReferenceCountException;
+import net.minecraft.nbt.*;
 import net.minecraft.util.identifier.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 public class PacketByteBuf extends ByteBuf {
     public static final short DEFAULT_MAX_STRING_LENGTH = Short.MAX_VALUE;
     public static final int MAX_TEXT_LENGTH = 262144;
     private static final int MAX_VAR_INT_LENGTH = 5;
+    private static final int MAX_READ_NBT_SIZE = 2097152;
     private final ByteBuf parent;
 
     public PacketByteBuf(ByteBuf parent) {
@@ -306,6 +313,234 @@ public class PacketByteBuf extends ByteBuf {
     public PacketByteBuf writeBlockPos(BlockPos pos) {
         this.writeLong(pos.asLong());
         return this;
+    }
+
+    /**
+     * Writes a UUID (universally unique identifier) to this buf. A UUID is
+     * represented by two regular longs.
+     *
+     * @param uuid
+     *         the UUID to write
+     * @return this buf, for chaining
+     * @see #readUuid()
+     */
+    public PacketByteBuf writeUuid(UUID uuid) {
+        this.writeLong(uuid.getMostSignificantBits());
+        this.writeLong(uuid.getLeastSignificantBits());
+        return this;
+    }
+
+    /**
+     * Reads a UUID (universally unique identifier) from this buf. A UUID is
+     * represented by two regular longs.
+     *
+     * @return the read UUID
+     * @see #writeUuid(UUID)
+     */
+    public UUID readUuid() {
+        return new UUID(this.readLong(), this.readLong());
+    }
+
+    /**
+     * Reads a collection from this buf. The collection is stored as a leading
+     * {@linkplain #readVarInt() var int} size followed by the entries
+     * sequentially.
+     *
+     * @param <T>
+     *         the collection's entry type
+     * @param <C>
+     *         the collection's type
+     * @param collectionFactory
+     *         a factory that creates a collection with a given size
+     * @param entryParser
+     *         a parser that parses each entry for the collection given this buf
+     * @return the read collection
+     * @see #writeCollection(Collection, BiConsumer)
+     * @see #readList(Function)
+     */
+    public <T, C extends Collection<T>> C readCollection(IntFunction<C> collectionFactory, Function<PacketByteBuf, T> entryParser) {
+        int i = this.readVarInt();
+        Collection<T> collection = collectionFactory.apply(i);
+        for (int j = 0; j < i; ++ j) {
+            collection.add(entryParser.apply(this));
+        }
+        return (C) collection;
+    }
+
+    /**
+     * Writes a collection to this buf. The collection is stored as a leading
+     * {@linkplain #readVarInt() var int} size followed by the entries
+     * sequentially.
+     *
+     * @param <T>
+     *         the list's entry type
+     * @param entrySerializer
+     *         a serializer that writes each entry to this buf
+     * @param collection
+     *         the collection to write
+     * @see #readCollection(IntFunction, Function)
+     */
+    public <T> void writeCollection(Collection<T> collection, BiConsumer<PacketByteBuf, T> entrySerializer) {
+        this.writeVarInt(collection.size());
+        for (T object : collection) {
+            entrySerializer.accept(this, object);
+        }
+    }
+
+    /**
+     * Reads a collection from this buf as an array list.
+     *
+     * @param <T>
+     *         the list's entry type
+     * @param entryParser
+     *         a parser that parses each entry for the collection given this buf
+     * @return the read list
+     * @see #readCollection(IntFunction, Function)
+     */
+    public <T> List<T> readList(Function<PacketByteBuf, T> entryParser) {
+        return this.readCollection(Lists::newArrayListWithCapacity, entryParser);
+    }
+
+    /**
+     * Writes an object to this buf as a compound NBT with the given codec.
+     *
+     * @param <T>
+     *         the encoded object's type
+     * @param object
+     *         the object to write to this buf
+     * @param codec
+     *         the codec to encode the object
+     * @throws io.netty.handler.codec.EncoderException
+     *         if the {@code codec} fails
+     *         to encode the compound NBT
+     * @see #decode(Codec)
+     */
+    public <T> void encode(Codec<T> codec, T object) {
+        DataResult<NbtElement> dataResult = codec.encodeStart(NbtOps.INSTANCE, object);
+        dataResult.error().ifPresent(partial -> {
+            throw new EncoderException("Failed to encode: " + partial.message() + " " + object);
+        });
+        this.writeNbt((NbtCompound) dataResult.result().get());
+    }
+
+    /**
+     * Reads an object from this buf as a compound NBT with the given codec.
+     *
+     * @param <T>
+     *         the decoded object's type
+     * @param codec
+     *         the codec to decode the object
+     * @return the read object
+     * @throws io.netty.handler.codec.EncoderException
+     *         if the {@code codec} fails
+     *         to decode the compound NBT
+     * @see #encode(Codec, Object)
+     */
+    public <T> T decode(Codec<T> codec) {
+        NbtCompound nbtCompound = this.readUnlimitedNbt();
+        DataResult<T> dataResult = codec.parse(NbtOps.INSTANCE, nbtCompound);
+        dataResult.error().ifPresent(partial -> {
+            throw new EncoderException("Failed to decode: " + partial.message() + " " + nbtCompound);
+        });
+        return dataResult.result().get();
+    }
+
+    /**
+     * Writes an NBT compound to this buf. The binary representation of NBT is
+     * handled by {@link net.minecraft.nbt.NbtIo}. If {@code compound} is {@code
+     * null}, it is treated as an NBT null.
+     *
+     * @param compound
+     *         the compound to write
+     * @return this buf, for chaining
+     * @throws io.netty.handler.codec.EncoderException
+     *         if the NBT cannot be
+     *         written
+     * @see #readNbt()
+     * @see #readUnlimitedNbt()
+     * @see #readNbt(NbtTagSizeTracker)
+     */
+    public PacketByteBuf writeNbt(@Nullable NbtCompound compound) {
+        if (compound == null) {
+            this.writeByte(0);
+        } else {
+            try {
+                NbtIo.write(compound, new ByteBufOutputStream(this));
+            } catch (IOException iOException) {
+                throw new EncoderException(iOException);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Reads an NBT compound from this buf. The binary representation of NBT is
+     * handled by {@link net.minecraft.nbt.NbtIo}. If an NBT null is encountered,
+     * this method returns {@code null}. The compound does not have a size limit.
+     *
+     * @return the read compound, may be {@code null}
+     * @throws io.netty.handler.codec.EncoderException
+     *         if the NBT cannot be read
+     * @apiNote Since this version does not have a size limit, it may be
+     * vulnerable to malicious NBT spam attacks.
+     * @see #writeNbt(NbtCompound)
+     * @see #readNbt()
+     * @see #readNbt(NbtTagSizeTracker)
+     */
+    @Nullable
+    public NbtCompound readUnlimitedNbt() {
+        return this.readNbt(NbtTagSizeTracker.EMPTY);
+    }
+
+    /**
+     * Reads an NBT compound from this buf. The binary representation of NBT is
+     * handled by {@link net.minecraft.nbt.NbtIo}. If an NBT null is encountered,
+     * this method returns {@code null}. The compound can have a maximum size of
+     * {@value #MAX_READ_NBT_SIZE} bytes.
+     *
+     * @return the read compound, may be {@code null}
+     * @throws io.netty.handler.codec.EncoderException
+     *         if the NBT cannot be read
+     * @throws RuntimeException
+     *         if the compound exceeds the allowed maximum size
+     * @see #writeNbt(NbtCompound)
+     * @see #readUnlimitedNbt()
+     * @see #readNbt(NbtTagSizeTracker)
+     * @see #MAX_READ_NBT_SIZE
+     */
+    @Nullable
+    public NbtCompound readNbt() {
+        return this.readNbt(new NbtTagSizeTracker(MAX_READ_NBT_SIZE));
+    }
+
+    /**
+     * Reads an NBT compound from this buf. The binary representation of NBT is
+     * handled by {@link net.minecraft.nbt.NbtIo}. If an NBT null is encountered,
+     * this method returns {@code null}. The compound can have a maximum size
+     * controlled by the {@code sizeTracker}.
+     *
+     * @return the read compound, may be {@code null}
+     * @throws io.netty.handler.codec.EncoderException
+     *         if the NBT cannot be read
+     * @throws RuntimeException
+     *         if the compound exceeds the allowed maximum size
+     * @see #writeNbt(NbtCompound)
+     * @see #readNbt()
+     * @see #readUnlimitedNbt()
+     */
+    @Nullable
+    public NbtCompound readNbt(NbtTagSizeTracker sizeTracker) {
+        int i = this.readerIndex();
+        byte b = this.readByte();
+        if (b == 0) {
+            return null;
+        }
+        this.readerIndex(i);
+        try {
+            return NbtIo.read(new ByteBufInputStream(this), sizeTracker);
+        } catch (IOException iOException) {
+            throw new EncoderException(iOException);
+        }
     }
 
     @Override

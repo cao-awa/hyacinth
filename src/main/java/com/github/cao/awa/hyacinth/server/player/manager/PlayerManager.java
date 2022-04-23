@@ -3,21 +3,32 @@ package com.github.cao.awa.hyacinth.server.player.manager;
 import com.github.cao.awa.hyacinth.network.connection.ClientConnection;
 import com.github.cao.awa.hyacinth.network.handler.play.ServerPlayNetworkHandler;
 import com.github.cao.awa.hyacinth.network.packet.buf.PacketByteBuf;
+import com.github.cao.awa.hyacinth.network.packet.s2c.play.CustomPayloadS2CPacket;
 import com.github.cao.awa.hyacinth.network.text.Text;
 import com.github.cao.awa.hyacinth.network.text.translate.TranslatableText;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
+import com.github.cao.awa.hyacinth.server.dimension.DimensionType;
 import com.github.cao.awa.hyacinth.server.entity.player.PlayerEntity;
 import com.github.cao.awa.hyacinth.server.entity.player.ServerPlayerEntity;
+import com.github.cao.awa.hyacinth.server.mode.GameMode;
 import com.github.cao.awa.hyacinth.server.permission.ops.OperatorList;
 import com.github.cao.awa.hyacinth.server.permission.whitelist.Whitelist;
 import com.github.cao.awa.hyacinth.server.player.ban.BannedIpEntry;
 import com.github.cao.awa.hyacinth.server.player.ban.BannedIpList;
 import com.github.cao.awa.hyacinth.server.player.ban.BannedPlayerEntry;
 import com.github.cao.awa.hyacinth.server.player.ban.BannedPlayerList;
+import com.github.cao.awa.hyacinth.server.world.ServerWorld;
+import com.github.cao.awa.hyacinth.server.world.World;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
+import com.mojang.serialization.Dynamic;
 import io.netty.buffer.Unpooled;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.util.identifier.Identifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -33,6 +44,7 @@ public class PlayerManager {
     public static final File BANNED_IPS_FILE = new File("banned-ips.json");
     public static final File OPERATORS_FILE = new File("ops.json");
     public static final File WHITELIST_FILE = new File("whitelist.json");
+    private static final Logger LOGGER = LogManager.getLogger("Manager:Player");
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
     private final BannedPlayerList bannedProfiles = new BannedPlayerList(BANNED_PLAYERS_FILE);
     private final BannedIpList bannedIps = new BannedIpList(BANNED_IPS_FILE);
@@ -109,7 +121,19 @@ public class PlayerManager {
     }
 
     public void onPlayerConnect(ClientConnection connection, ServerPlayerEntity player) {
-        serverPlayNetworkHandler.sendPacket(new net.minecraft.network.packet.s2c.play.GameJoinS2CPacket(player.getId(), worldProperties.isHardcore(), player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), this.server.getWorldRegistryKeys(), this.registryManager, serverWorld2.getDimension(), serverWorld2.getRegistryKey(), BiomeAccess.hashSeed(serverWorld2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, serverWorld2.isDebugWorld(), serverWorld2.isFlat()));
+//        NbtCompound nbtCompound = this.loadPlayerData(player);
+//        Identifier registryKey = nbtCompound != null ? DimensionType.worldFromDimensionNbt(new Dynamic<>(NbtOps.INSTANCE, nbtCompound.get("Dimension"))).resultOrPartial(LOGGER::error).orElse(World.OVERWORLD) : World.OVERWORLD;
+//        ServerWorld serverWorld2;
+//        ServerWorld serverWorld = this.server.getWorld(registryKey);
+//        if (serverWorld == null) {
+//            LOGGER.warn("Unknown respawn dimension {}, defaulting to overworld", registryKey);
+//            serverWorld2 = this.server.getOverworld();
+//        } else {
+//            serverWorld2 = serverWorld;
+//        }
+//        WorldProperties worldProperties = serverWorld2.getLevelProperties();
+//        serverPlayNetworkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.CREATIVE, GameMode.CREATIVE, this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), BiomeAccess.hashSeed(world2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, world2.isDebugWorld(), world2.isFlat()));
+//        serverPlayNetworkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), worldProperties.isHardcore(), player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), BiomeAccess.hashSeed(world2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, world2.isDebugWorld(), world2.isFlat()));
 //        serverPlayNetworkHandler.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, new PacketByteBuf(Unpooled.buffer()).writeString(this.getServer().getServerModName())));
 //        serverPlayNetworkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
 //        serverPlayNetworkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
