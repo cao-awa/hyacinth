@@ -9,9 +9,27 @@ repositories {
     mavenCentral()
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.2'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.2'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'commons-logging:commons-logging:1.2'
+    implementation 'it.unimi.dsi:fastutil:8.5.8'
+    implementation 'org.jetbrains:annotations:23.0.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    implementation 'org.xbib.elasticsearch:joptsimple:6.3.2.1'
+    implementation 'com.esotericsoftware:kryo:5.3.0'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'io.netty:netty-all:5.0.0.Alpha2'
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'com.github.oshi:oshi-core:6.1.6'
 }
 
 test {
