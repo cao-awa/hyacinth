@@ -103,7 +103,7 @@ public class BlockPos
     public static long asLong(int x, int y, int z) {
         long l = 0L;
         l |= ((long)x & BITS_X) << BIT_SHIFT_X;
-        l |= ((long)y & BITS_Y) << 0;
+        l |= ((long) y & BITS_Y);
         return l |= ((long)z & BITS_Z) << BIT_SHIFT_Z;
     }
 

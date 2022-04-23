@@ -110,40 +110,28 @@ public class Mathematics {
         if (value < min) {
             return min;
         }
-        if (value > max) {
-            return max;
-        }
-        return value;
+        return Math.min(value, max);
     }
 
     public static long clamp(long value, long min, long max) {
         if (value < min) {
             return min;
         }
-        if (value > max) {
-            return max;
-        }
-        return value;
+        return Math.min(value, max);
     }
 
     public static float clamp(float value, float min, float max) {
         if (value < min) {
             return min;
         }
-        if (value > max) {
-            return max;
-        }
-        return value;
+        return Math.min(value, max);
     }
 
     public static double clamp(double value, double min, double max) {
         if (value < min) {
             return min;
         }
-        if (value > max) {
-            return max;
-        }
-        return value;
+        return Math.min(value, max);
     }
 
     public static double clampedLerp(double start, double end, double delta) {
@@ -173,7 +161,7 @@ public class Mathematics {
         if (b < 0.0) {
             b = -b;
         }
-        return a > b ? a : b;
+        return Math.max(a, b);
     }
 
     public static int floorDiv(int dividend, int divisor) {
@@ -416,8 +404,8 @@ public class Mathematics {
         int j = (b & 0xFF0000) >> 16;
         int k = (a & 0xFF00) >> 8;
         int l = (b & 0xFF00) >> 8;
-        int m = (a & 0xFF) >> 0;
-        int n = (b & 0xFF) >> 0;
+        int m = (a & 0xFF);
+        int n = (b & 0xFF);
         int o = (int)((float)i * (float)j / 255.0f);
         int p = (int)((float)k * (float)l / 255.0f);
         int q = (int)((float)m * (float)n / 255.0f);
@@ -427,7 +415,7 @@ public class Mathematics {
     public static int multiplyColors(int color, float r, float g, float b) {
         int i = (color & 0xFF0000) >> 16;
         int j = (color & 0xFF00) >> 8;
-        int k = (color & 0xFF) >> 0;
+        int k = (color & 0xFF);
         int l = (int)((float)i * r);
         int m = (int)((float)j * g);
         int n = (int)((float)k * b);

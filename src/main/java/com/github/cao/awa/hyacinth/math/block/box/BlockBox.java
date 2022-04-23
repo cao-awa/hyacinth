@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
  * equals} implementations and can be used as map keys if user can ensure
  * they are not modified.
  *
- * @see Box
+ * @see com.github.cao.awa.hyacinth.math.box.Box
  */
 public class BlockBox {
     /**
@@ -257,8 +257,7 @@ public class BlockBox {
         if (this == o) {
             return true;
         }
-        if (o instanceof BlockBox) {
-            BlockBox blockBox = (BlockBox) o;
+        if (o instanceof BlockBox blockBox) {
             return this.minX == blockBox.minX && this.minY == blockBox.minY && this.minZ == blockBox.minZ && this.maxX == blockBox.maxX && this.maxY == blockBox.maxY && this.maxZ == blockBox.maxZ;
         }
         return false;

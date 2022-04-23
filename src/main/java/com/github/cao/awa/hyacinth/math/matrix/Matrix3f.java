@@ -93,9 +93,9 @@ public final class Matrix3f {
         float f = 2.0f * (upperLeft - lowerRight);
         if (THREE_PLUS_TWO_SQRT_TWO * g * g < f * f) {
             float h = Mathematics.fastInverseSqrt(g * g + f * f);
-            return Pair.of(Float.valueOf(h * g), Float.valueOf(h * f));
+            return Pair.of(h * g, h * f);
         }
-        return Pair.of(Float.valueOf(SIN_PI_OVER_EIGHT), Float.valueOf(COS_PI_OVER_EIGHT));
+        return Pair.of(SIN_PI_OVER_EIGHT, COS_PI_OVER_EIGHT);
     }
 
     private static Pair<Float, Float> method_22848(float f, float g) {
@@ -126,7 +126,7 @@ public final class Matrix3f {
             pair = Matrix3f.getSinAndCosOfRotation(matrix.a00, 0.5f * (matrix.a01 + matrix.a10), matrix.a11);
             float_ = pair.getFirst();
             float2 = pair.getSecond();
-            quaternion2 = new Quaternion(0.0f, 0.0f, float_.floatValue(), float2.floatValue());
+            quaternion2 = new Quaternion(0.0f, 0.0f, float_, float2);
             f = float2.floatValue() * float2.floatValue() - float_.floatValue() * float_.floatValue();
             g = -2.0f * float_.floatValue() * float2.floatValue();
             h = float2.floatValue() * float2.floatValue() + float_.floatValue() * float_.floatValue();
