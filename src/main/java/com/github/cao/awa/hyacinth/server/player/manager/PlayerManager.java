@@ -1,6 +1,7 @@
 package com.github.cao.awa.hyacinth.server.player.manager;
 
 import com.github.cao.awa.hyacinth.network.connection.ClientConnection;
+import com.github.cao.awa.hyacinth.network.handler.play.ServerPlayNetworkHandler;
 import com.github.cao.awa.hyacinth.network.packet.buf.PacketByteBuf;
 import com.github.cao.awa.hyacinth.network.text.Text;
 import com.github.cao.awa.hyacinth.network.text.translate.TranslatableText;
@@ -42,6 +43,7 @@ public class PlayerManager {
     private final Whitelist whitelist = new Whitelist(WHITELIST_FILE);
     private boolean whitelistEnabled;
     protected final int maxPlayers;
+    private ServerPlayNetworkHandler serverPlayNetworkHandler;
 
     public PlayerManager(MinecraftServer server, int maxPlayers) {
         this.server = server;
@@ -107,7 +109,7 @@ public class PlayerManager {
     }
 
     public void onPlayerConnect(ClientConnection connection, ServerPlayerEntity player) {
-//        serverPlayNetworkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), worldProperties.isHardcore(), player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), this.server.getWorldRegistryKeys(), this.registryManager, serverWorld2.getDimension(), serverWorld2.getRegistryKey(), BiomeAccess.hashSeed(serverWorld2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, serverWorld2.isDebugWorld(), serverWorld2.isFlat()));
+        serverPlayNetworkHandler.sendPacket(new net.minecraft.network.packet.s2c.play.GameJoinS2CPacket(player.getId(), worldProperties.isHardcore(), player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), this.server.getWorldRegistryKeys(), this.registryManager, serverWorld2.getDimension(), serverWorld2.getRegistryKey(), BiomeAccess.hashSeed(serverWorld2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, serverWorld2.isDebugWorld(), serverWorld2.isFlat()));
 //        serverPlayNetworkHandler.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, new PacketByteBuf(Unpooled.buffer()).writeString(this.getServer().getServerModName())));
 //        serverPlayNetworkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
 //        serverPlayNetworkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));

@@ -17,6 +17,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -41,10 +42,8 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 public class ServerNetworkIo {
-    //    public static final Lazy<NioEventLoopGroup> DEFAULT_CHANNEL = new Lazy<>(() -> new NioEventLoopGroup(0, new DefaultExecutorServiceFactory("Netty Server IO #%d")));
     public static final Lazy<NioEventLoopGroup> DEFAULT_CHANNEL = new Lazy<>(() -> new NioEventLoopGroup(0, Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Netty Server IO #%d").setDaemon(true).build())));
     public static final Lazy<EpollEventLoopGroup> EPOLL_CHANNEL = new Lazy<>(() -> new EpollEventLoopGroup(0, Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Netty Epoll Server IO #%d").setDaemon(true).build())));
-    //    public static final Lazy<EpollEventLoopGroup> EPOLL_CHANNEL = new Lazy<>(() -> new EpollEventLoopGroup(0, new DefaultExecutorServiceFactory("Netty Epoll Server IO #%d")));
     private static final Logger LOGGER = LogManager.getLogger("NetworkIO");
     final MinecraftServer server;
     final List<ClientConnection> connections = Collections.synchronizedList(Lists.newArrayList());

@@ -15,10 +15,9 @@ import org.apache.logging.log4j.MarkerManager;
 import java.io.IOException;
 import java.util.List;
 
-public class DecoderHandler
-        extends ByteToMessageDecoder {
+public class DecoderHandler extends ByteToMessageDecoder {
     private static final Logger LOGGER = LogManager.getLogger();
-//    private static final Marker MARKER = MarkerManager.getMarker("PACKET_RECEIVED", ClientConnection.NETWORK_PACKETS_MARKER);
+    //    private static final Marker MARKER = MarkerManager.getMarker("PACKET_RECEIVED", ClientConnection.NETWORK_PACKETS_MARKER);
     private final NetworkSide side;
 
     public DecoderHandler(NetworkSide side) {

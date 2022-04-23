@@ -5,6 +5,7 @@ import com.github.cao.awa.hyacinth.network.packet.Packet;
 import com.github.cao.awa.hyacinth.network.packet.buf.PacketByteBuf;
 import com.github.cao.awa.hyacinth.network.packet.listener.ServerHandshakePacketListener;
 import com.github.cao.awa.hyacinth.network.state.NetworkState;
+import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -25,7 +26,7 @@ public class HandshakeC2SPacket implements Packet<ServerHandshakePacketListener>
 
     public HandshakeC2SPacket(PacketByteBuf buf) {
         this.protocolVersion = buf.readVarInt();
-        this.address = buf.readString(255);
+        this.address = buf.readString(MAX_ADDRESS_LENGTH);
         this.port = buf.readUnsignedShort();
         this.intendedState = NetworkState.byId(buf.readVarInt());
     }

@@ -9,6 +9,9 @@ public class ServerPlayNetworkHandler {
     private ClientConnection connection;
     private MinecraftServer server;
 
+    public void tick() {
+    }
+
     public void disconnect(Text reason) {
         this.connection.send(new DisconnectS2CPacket(reason), future -> this.connection.disconnect(reason));
         this.connection.disableAutoRead();

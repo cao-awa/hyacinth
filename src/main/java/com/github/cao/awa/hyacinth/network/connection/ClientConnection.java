@@ -68,9 +68,9 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
         if (this.packetListener instanceof ServerLoginNetworkHandler) {
             ((ServerLoginNetworkHandler) this.packetListener).tick();
         }
-//        if(this.packetListener instanceof ServerPlayNetworkHandler) {
-//            ((ServerPlayNetworkHandler) this.packetListener).tick();
-//        }
+        if(this.packetListener instanceof ServerPlayNetworkHandler) {
+            ((ServerPlayNetworkHandler) this.packetListener).tick();
+        }
         if (! this.isOpen() && ! this.disconnected) {
             this.handleDisconnection();
         }
@@ -119,7 +119,7 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
         synchronized (packetQueue) {
             QueuedPacket queuedPacket;
             while ((queuedPacket = packetQueue.poll()) != null) {
-                sendImmediately(queuedPacket.packet, queuedPacket.callback);
+                sendImmediately(queuedPacket.packet(), queuedPacket.callback());
             }
         }
     }
@@ -213,8 +213,7 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
     protected void messageReceived(ChannelHandlerContext ctx, Packet packet) {
         if (channel.isOpen()) {
             try {
-                System.out.println(packet.getClass().getName());
-                ClientConnection.handlePacket(packet, packetListener);
+                ClientConnection.handlePacket(packet, this.packetListener);
             } catch (OffThreadException offThreadException) {
             } catch (ClassCastException classCastException) {
                 LOGGER.error("Received {} that couldn't be processed", packet.getClass(), classCastException);

@@ -284,7 +284,7 @@ public enum NetworkState {
     }
 
     static class PacketHandler<T extends PacketListener> {
-        final Object2IntMap<Class<? extends Packet<T>>> packetIds = EntrustParser.operation(new Object2IntOpenHashMap(), map -> map.defaultReturnValue(-1));
+        final Object2IntMap<Class<? extends Packet<T>>> packetIds = EntrustParser.operation(new Object2IntOpenHashMap<>(), map -> map.defaultReturnValue(-1));
         private final List<Function<PacketByteBuf, ? extends Packet<T>>> packetFactories = Lists.newArrayList();
 
         PacketHandler() {
@@ -311,7 +311,7 @@ public enum NetworkState {
         @Nullable
         public Packet<?> createPacket(int id, PacketByteBuf buf) {
             Function<PacketByteBuf, Packet<T>> function = (Function<PacketByteBuf, Packet<T>>) this.packetFactories.get(id);
-            return function != null ? function.apply(buf) : null;
+            return function == null ? null : function.apply(buf);
         }
 
         public Iterable<Class<? extends Packet<?>>> getPacketTypes() {

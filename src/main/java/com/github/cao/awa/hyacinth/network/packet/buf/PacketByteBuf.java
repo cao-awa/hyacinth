@@ -1,5 +1,6 @@
 package com.github.cao.awa.hyacinth.network.packet.buf;
 
+import com.github.cao.awa.hyacinth.math.block.BlockPos;
 import com.github.cao.awa.hyacinth.network.text.Text;
 import com.google.common.io.ByteProcessor;
 import io.netty.buffer.ByteBuf;
@@ -24,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 public class PacketByteBuf extends ByteBuf {
     public static final short DEFAULT_MAX_STRING_LENGTH = Short.MAX_VALUE;
     public static final int MAX_TEXT_LENGTH = 262144;
+    private static final int MAX_VAR_INT_LENGTH = 5;
     private final ByteBuf parent;
 
     public PacketByteBuf(ByteBuf parent) {
@@ -252,6 +254,58 @@ public class PacketByteBuf extends ByteBuf {
      */
     public String readString() {
         return this.readString(DEFAULT_MAX_STRING_LENGTH);
+    }
+
+    private int getVarIntLength(long value) {
+        int length = 0;
+        do {
+            value = value >> 7;
+            length++;
+        } while (value > 0);
+        return length;
+    }
+
+    /**
+     * Returns the number of bytes needed to encode {@code value} as a
+     * {@linkplain #writeVarInt(int) var int}. Guaranteed to be between {@code
+     * 1} and {@value #MAX_VAR_INT_LENGTH}.
+     *
+     * @param value
+     *         the value to encode
+     * @return the number of bytes a var int {@code value} uses
+     */
+    public static int getVarIntLength(int value) {
+        for (int i = 1; i < MAX_VAR_INT_LENGTH; ++ i) {
+            if ((value & - 1 << i * 7) != 0)
+                continue;
+            return i;
+        }
+        return MAX_VAR_INT_LENGTH;
+    }
+
+    /**
+     * Reads a block position from this buf. A block position is represented by
+     * a regular long.
+     *
+     * @return the read block pos
+     * @see #writeBlockPos(BlockPos)
+     */
+    public BlockPos readBlockPos() {
+        return BlockPos.fromLong(this.readLong());
+    }
+
+    /**
+     * Writes a block position to this buf. A block position is represented by
+     * a regular long.
+     *
+     * @param pos
+     *         the pos to write
+     * @return this buf, for chaining
+     * @see #readBlockPos()
+     */
+    public PacketByteBuf writeBlockPos(BlockPos pos) {
+        this.writeLong(pos.asLong());
+        return this;
     }
 
     @Override

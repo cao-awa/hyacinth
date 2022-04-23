@@ -26,6 +26,13 @@ public class EntrustParser {
         return target;
     }
 
+    public static <T> T executeNull(T target, Supplier<T> asNotNull, Supplier<T> asNull) {
+        if (target == null) {
+            return asNull.get();
+        }
+        return asNotNull.get();
+    }
+
     public static <T> T nullRequires(T target, Supplier<T> action) {
         return action.get();
     }
