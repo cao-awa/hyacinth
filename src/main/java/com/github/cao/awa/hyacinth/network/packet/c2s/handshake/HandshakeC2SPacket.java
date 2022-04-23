@@ -14,8 +14,7 @@ public class HandshakeC2SPacket implements Packet<ServerHandshakePacketListener>
     private final String address;
     private final int port;
     private final NetworkState intendedState;
-    // TODO: 2022/4/22
-    private int protocolVersion = 2860;
+    private int protocolVersion;
 
     public HandshakeC2SPacket(String address, int port, NetworkState intendedState) {
         this.protocolVersion = SharedConstants.getGameVersion().getProtocolVersion();
