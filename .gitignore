@@ -1,6 +1,6 @@
-logs/
-out/
-build/
-gradle/
-.gradle/
-.idea/
+/.idea/
+/.gradle/
+/build/
+/gradle/
+/logs/
+/out/

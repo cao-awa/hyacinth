@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.xbib.elasticsearch:joptsimple:6.3.2.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.xbib.elasticsearch/joptsimple/6.3.2.1/f9f08d6da1205f3a3e9eaeaa854b2ccc3e91009b/joptsimple-6.3.2.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.xbib.elasticsearch/joptsimple/6.3.2.1/d686b4f27cf66071e9149e9d23fc74613b53918c/joptsimple-6.3.2.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

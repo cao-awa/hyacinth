@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/hyacinth_main.iml" filepath="$PROJECT_DIR$/.idea/hyacinth_main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hyacinth.iml" filepath="$PROJECT_DIR$/.idea/modules/hyacinth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hyacinth_main/hyacinth.hyacinth_main.iml" filepath="$PROJECT_DIR$/.idea/modules/hyacinth_main/hyacinth.hyacinth_main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hyacinth.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hyacinth.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hyacinth.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hyacinth.test.iml" />
     </modules>
   </component>
 </project>
