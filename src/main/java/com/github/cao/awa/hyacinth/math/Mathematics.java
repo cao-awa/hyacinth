@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.function.IntPredicate;
 
 import com.github.cao.awa.hyacinth.math.box.Box;
+import com.github.cao.awa.hyacinth.math.point.*;
 import com.github.cao.awa.hyacinth.math.vec.Vec3d;
 import com.github.cao.awa.hyacinth.math.vec.Vec3i;
 import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
@@ -890,6 +891,15 @@ public final class Mathematics {
      */
     public static int roundDownToMultiple(double a, int b) {
         return floor(a / (double)b) * b;
+    }
+
+    public static Point intersection(Point pointX, Point pointY) {
+        double k1 = Math.tan(pointX.angle() * DG), b1 = pointX.y() - k1 * pointX.x();
+        double k2 = Math.tan(pointY.angle() * DG), b2 = pointY.y() - k2 * pointX.x();
+
+        double y = (k2 * b1 - k1 * b2) / (k2 - k1);
+        double x = (y - b1) / k1;
+        return new Point(x, y, - 1);
     }
 
     static {

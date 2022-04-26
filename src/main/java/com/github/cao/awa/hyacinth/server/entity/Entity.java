@@ -28,6 +28,10 @@ public abstract class Entity implements Nameable, EntityLike, CommandOutput {
     private float pitch;
     public float prevYaw;
     public float prevPitch;
+    public double prevX;
+    public double prevY;
+    public double prevZ;
+    private Vec3d pos;
     protected static final TrackedData<EntityPose> POSE = DataTracker.registerData(Entity.class, TrackedDataHandlerRegistry.ENTITY_POSE);
 
     protected void setRotation(float yaw, float pitch) {
@@ -180,6 +184,17 @@ public abstract class Entity implements Nameable, EntityLike, CommandOutput {
 //            VoxelShape voxelShape = VoxelShapes.cuboid(Box.of(vec3d, d, e, d));
 //            this.world.findClosestCollision(this, voxelShape, vec3d, entityDimensions2.width, entityDimensions2.height, entityDimensions2.width).ifPresent(pos -> this.setPosition(pos.add(0.0, (double)(-entityDimensions.height) / 2.0, 0.0)));
 //        }
+    }
+
+    public double getX() {
+        return pos.x;
+    }
+
+    public double getY() {
+        return pos.y;
+    }
+    public double getZ() {
+        return pos.z;
     }
 
     public enum RemovalReason {
