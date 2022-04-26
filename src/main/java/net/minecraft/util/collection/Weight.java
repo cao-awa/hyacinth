@@ -4,8 +4,7 @@
 package net.minecraft.util.collection;
 
 import com.github.cao.awa.hyacinth.constants.SharedConstants;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustExecution;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustExecution;
 import com.mojang.serialization.Codec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

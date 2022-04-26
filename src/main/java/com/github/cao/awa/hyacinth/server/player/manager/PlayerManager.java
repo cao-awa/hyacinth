@@ -2,8 +2,9 @@ package com.github.cao.awa.hyacinth.server.player.manager;
 
 import com.github.cao.awa.hyacinth.network.connection.ClientConnection;
 import com.github.cao.awa.hyacinth.network.handler.play.ServerPlayNetworkHandler;
+import com.github.cao.awa.hyacinth.network.packet.*;
 import com.github.cao.awa.hyacinth.network.packet.buf.PacketByteBuf;
-import com.github.cao.awa.hyacinth.network.packet.s2c.play.CustomPayloadS2CPacket;
+import com.github.cao.awa.hyacinth.network.packet.s2c.play.*;
 import com.github.cao.awa.hyacinth.network.text.Text;
 import com.github.cao.awa.hyacinth.network.text.translate.TranslatableText;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
@@ -27,6 +28,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.identifier.Identifier;
+import net.minecraft.util.registry.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -55,11 +57,14 @@ public class PlayerManager {
     private final Whitelist whitelist = new Whitelist(WHITELIST_FILE);
     private boolean whitelistEnabled;
     protected final int maxPlayers;
-    private ServerPlayNetworkHandler serverPlayNetworkHandler;
+    private final DynamicRegistryManager.Impl registryManager;
+    private int viewDistance = 10;
+    private int simulationDistance = 10;
 
-    public PlayerManager(MinecraftServer server, int maxPlayers) {
+    public PlayerManager(MinecraftServer server, int maxPlayers, DynamicRegistryManager.Impl registryManager) {
         this.server = server;
         this.maxPlayers = maxPlayers;
+        this.registryManager = registryManager;
     }
 
     @Nullable
@@ -120,26 +125,79 @@ public class PlayerManager {
         return !this.whitelistEnabled || this.ops.contains(profile) || this.whitelist.contains(profile);
     }
 
+    public MinecraftServer getServer() {
+        return server;
+    }
+
     public void onPlayerConnect(ClientConnection connection, ServerPlayerEntity player) {
-//        NbtCompound nbtCompound = this.loadPlayerData(player);
-//        Identifier registryKey = nbtCompound != null ? DimensionType.worldFromDimensionNbt(new Dynamic<>(NbtOps.INSTANCE, nbtCompound.get("Dimension"))).resultOrPartial(LOGGER::error).orElse(World.OVERWORLD) : World.OVERWORLD;
-//        ServerWorld serverWorld2;
-//        ServerWorld serverWorld = this.server.getWorld(registryKey);
-//        if (serverWorld == null) {
-//            LOGGER.warn("Unknown respawn dimension {}, defaulting to overworld", registryKey);
-//            serverWorld2 = this.server.getOverworld();
-//        } else {
-//            serverWorld2 = serverWorld;
-//        }
+        ServerPlayNetworkHandler networkHandler = new ServerPlayNetworkHandler(this.server, connection, player);
+        NbtCompound nbtCompound = this.loadPlayerData(player);
+        RegistryKey<World> registryKey = nbtCompound != null ? DimensionType.worldFromDimensionNbt(new Dynamic<>(NbtOps.INSTANCE, nbtCompound.get("Dimension"))).resultOrPartial(LOGGER::error).orElse(World.OVERWORLD) : World.OVERWORLD;
+        ServerWorld world2;
+        ServerWorld serverWorld = this.server.getWorld(registryKey);
+        if (serverWorld == null) {
+            LOGGER.warn("Unknown respawn dimension {}, defaulting to overworld", registryKey);
+            world2 = this.server.getOverworld();
+        } else {
+            world2 = serverWorld;
+        }
 //        WorldProperties worldProperties = serverWorld2.getLevelProperties();
-//        serverPlayNetworkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.CREATIVE, GameMode.CREATIVE, this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), BiomeAccess.hashSeed(world2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, world2.isDebugWorld(), world2.isFlat()));
-//        serverPlayNetworkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), worldProperties.isHardcore(), player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), BiomeAccess.hashSeed(world2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, world2.isDebugWorld(), world2.isFlat()));
-//        serverPlayNetworkHandler.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, new PacketByteBuf(Unpooled.buffer()).writeString(this.getServer().getServerModName())));
+//        networkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.CREATIVE, GameMode.CREATIVE, 0, server.getMaxPlayerCount(), 12, 12, false, false, false, true));
+        networkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.CREATIVE, GameMode.CREATIVE, this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), 0, server.getMaxPlayerCount(), 12,12, false, false, false, true));
+//        networkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), worldProperties.isHardcore(), player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), BiomeAccess.hashSeed(world2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, world2.isDebugWorld(), world2.isFlat()));
+        networkHandler.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, new PacketByteBuf(Unpooled.buffer()).writeString(this.getServer().getServerModName())));
 //        serverPlayNetworkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
 //        serverPlayNetworkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
 //        serverPlayNetworkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(player.getInventory().selectedSlot));
 //        serverPlayNetworkHandler.sendPacket(new SynchronizeRecipesS2CPacket(this.server.getRecipeManager().values()));
 //        serverPlayNetworkHandler.sendPacket(new SynchronizeTagsS2CPacket(this.server.getTagManager().toPacket(this.registryManager)));
         System.out.println("connecting");
+    }
+
+    @Nullable
+    public NbtCompound loadPlayerData(ServerPlayerEntity player) {
+//        NbtCompound nbtCompound2;
+//        NbtCompound nbtCompound = this.server.getSaveProperties().getPlayerData();
+//        if (player.getName().getString().equals(this.server.getSinglePlayerName()) && nbtCompound != null) {
+//            nbtCompound2 = nbtCompound;
+//            player.readNbt(nbtCompound2);
+//            LOGGER.debug("loading single player");
+//        } else {
+//            nbtCompound2 = this.saveHandler.loadPlayerData(player);
+//        }
+//        return nbtCompound2;
+        return null;
+    }
+
+    public void setViewDistance(int viewDistance) {
+        this.viewDistance = viewDistance;
+        this.sendToAll(new ChunkLoadDistanceS2CPacket(viewDistance));
+        for (ServerWorld serverWorld : this.server.getWorlds()) {
+            if (serverWorld == null) continue;
+//            serverWorld.getChunkManager().applyViewDistance(viewDistance);
+        }
+    }
+
+    public void setSimulationDistance(int simulationDistance) {
+        this.simulationDistance = simulationDistance;
+        this.sendToAll(new SimulationDistanceS2CPacket(simulationDistance));
+        for (ServerWorld serverWorld : this.server.getWorlds()) {
+            if (serverWorld == null) continue;
+//            serverWorld.getChunkManager().applySimulationDistance(simulationDistance);
+        }
+    }
+
+    public void sendToAll(Packet<?> packet) {
+        for (ServerPlayerEntity serverPlayerEntity : this.players) {
+            serverPlayerEntity.networkHandler.sendPacket(packet);
+        }
+    }
+
+    public int getViewDistance() {
+        return this.viewDistance;
+    }
+
+    public int getSimulationDistance() {
+        return this.simulationDistance;
     }
 }

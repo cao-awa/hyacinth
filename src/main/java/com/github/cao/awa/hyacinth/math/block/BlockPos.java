@@ -9,7 +9,7 @@ import com.github.cao.awa.hyacinth.math.direction.Direction;
 import com.github.cao.awa.hyacinth.math.position.Position;
 import com.github.cao.awa.hyacinth.math.vec.Vec3d;
 import com.github.cao.awa.hyacinth.math.vec.Vec3i;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.collect.AbstractIterator;
 import com.mojang.serialization.Codec;
 import org.apache.commons.lang3.Validate;
@@ -52,8 +52,8 @@ public class BlockPos
     private static final int BIT_SHIFT_Z;
     private static final int BIT_SHIFT_X;
 
-    public BlockPos(int i, int j, int k) {
-        super(i, j, k);
+    public BlockPos(int x, int y, int z) {
+        super(x, y, z);
     }
 
     public BlockPos(double d, double e, double f) {

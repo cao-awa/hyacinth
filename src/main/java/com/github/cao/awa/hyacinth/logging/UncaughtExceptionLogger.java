@@ -1,8 +1,9 @@
-package net.minecraft.util.loggin;
+package com.github.cao.awa.hyacinth.logging;
 
 import org.apache.logging.log4j.Logger;
 
-public class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler {
+public class UncaughtExceptionLogger
+implements Thread.UncaughtExceptionHandler {
     private final Logger logger;
 
     public UncaughtExceptionLogger(Logger logger) {
@@ -14,5 +15,4 @@ public class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler 
         this.logger.error("Caught previously unhandled exception :", throwable);
     }
 }
-
 

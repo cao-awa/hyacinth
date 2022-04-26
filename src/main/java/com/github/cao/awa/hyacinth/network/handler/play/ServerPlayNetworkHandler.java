@@ -16,6 +16,16 @@ import org.jetbrains.annotations.Nullable;
 public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerPlayPacketListener {
     private ClientConnection connection;
     private MinecraftServer server;
+    private ServerPlayerEntity player;
+
+    public ServerPlayNetworkHandler(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player) {
+        this.server = server;
+        this.connection = connection;
+        connection.setPacketListener(this);
+        this.player = player;
+        player.networkHandler = this;
+//        player.getTextStream().onConnect();
+    }
 
     public void tick() {
     }

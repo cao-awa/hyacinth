@@ -1,23 +1,20 @@
-package com.github.zhuaidadaya.rikaishinikui.handler.entrust;
+package com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust;
 
-import com.github.cao.awa.hyacinth.constants.SharedConstants;
-import com.google.common.collect.Lists;
-import com.mojang.serialization.DataResult;
-import it.unimi.dsi.fastutil.chars.CharPredicate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NotNull;
+import com.github.cao.awa.hyacinth.constants.*;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.function.*;
+import com.google.common.collect.*;
+import com.mojang.datafixers.*;
+import com.mojang.serialization.*;
+import it.unimi.dsi.fastutil.chars.*;
+import org.jetbrains.annotations.*;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.stream.*;
 
 public class EntrustParser {
-    private static Logger LOGGER = LogManager.getLogger();
+    static final Map<String, String> name = new HashMap<>();
 
     public static <T> T getNotNull(T target, @NotNull T defaultValue) {
         if (target == null) {
@@ -26,19 +23,51 @@ public class EntrustParser {
         return target;
     }
 
-    public static <T> T executeNull(T target, Supplier<T> asNotNull, Supplier<T> asNull) {
-        if (target == null) {
-            return asNull.get();
-        }
-        return asNotNull.get();
-    }
-
     public static <T> T nullRequires(T target, Supplier<T> action) {
-        return action.get();
+        if (target == null) {
+            return action.get();
+        }
+        return null;
     }
 
     public static <T> T build(Supplier<T> obj) {
         return obj.get();
+    }
+
+    public static <T> T create(Supplier<T> action) {
+        return action.get();
+    }
+
+    public static <T> T tryCreate(ExceptingSupplier<T> action, T defaultValue) {
+        try {
+            return action.get();
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    public static <T> T trying(ExceptingSupplier<T> action) {
+        try {
+            return action.get();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static <T> T operation(Supplier<T> target) {
+        return target.get();
+    }
+
+    public static <T> T tryInstance(Class<T> clazz, ExceptingSupplier<T> target, T defaultValue) {
+        try {
+            return target.get();
+        } catch (Throwable e) {
+
+        }
+        return defaultValue;
+    }
+
+    public static void main(String[] args) {
     }
 
     public static <T> T operation(T target, Consumer<T> action) {
@@ -46,9 +75,23 @@ public class EntrustParser {
         return target;
     }
 
-    public static <T> T operation(Supplier<T> target) {
-        return target.get();
+    public static <T> T trying(ExceptingSupplier<T> action, Supplier<T> actionWhenException) {
+        try {
+            return action.get();
+        } catch (Exception e) {
+            return actionWhenException.get();
+        }
     }
+
+    public static <T> T select(T[] array, int index) {
+        return array.length > index ? array[index] : array[array.length - 1];
+    }
+
+    public static <T> T select(T[] array, Random random) {
+        return array[random.nextInt(array.length)];
+    }
+
+    // Mojang Utils
 
     public static <T> DataResult<List<T>> toArray(List<T> list, int length) {
         if (list.size() != length) {
@@ -71,10 +114,6 @@ public class EntrustParser {
             return DataResult.error(string);
         }
         return DataResult.success(is);
-    }
-
-    public static <T> T select(T[] array, Random random) {
-        return array[random.nextInt(array.length)];
     }
 
     public static String replaceInvalidChars(String string, CharPredicate predicate) {

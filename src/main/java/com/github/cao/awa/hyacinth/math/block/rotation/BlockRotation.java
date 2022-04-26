@@ -2,7 +2,7 @@ package com.github.cao.awa.hyacinth.math.block.rotation;
 
 import com.github.cao.awa.hyacinth.math.direction.Direction;
 import com.github.cao.awa.hyacinth.math.direction.DirectionTransformation;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;

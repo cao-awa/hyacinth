@@ -1,6 +1,6 @@
 package net.minecraft.dynamic;
 
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 

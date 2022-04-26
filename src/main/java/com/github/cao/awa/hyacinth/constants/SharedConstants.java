@@ -31,7 +31,6 @@ public class SharedConstants {
     public static boolean DEBUG_NOISE = false;
     public static final int DEFAULT_PORT = 25565;
     public static final ResourceLeakDetector.Level RESOURCE_LEAK_DETECTOR_DISABLED = ResourceLeakDetector.Level.DISABLED;
-    public static final String OVERWORLD_ID = "minecraft:WORLD_OVERWORLD";
 
     /**
      * Specifies whether Minecraft should use choice type registrations from the game's schema when entity types or block entity types are created.
@@ -57,7 +56,7 @@ public class SharedConstants {
      * @apiNote This method is used to determine if the server should
      * accept a chat message sent from client.
      *
-     * @see net.minecraft.server.network.ServerPlayNetworkHandler#onChatMessage
+     * @see com.github.cao.awa.hyacinth.network.handler.play.ServerPlayNetworkHandler#onChatMessage
      */
     public static boolean isValidChar(char chr) {
         return chr != '\u00a7' && chr >= ' ' && chr != '\u007f';
@@ -94,7 +93,7 @@ public class SharedConstants {
     }
 
     public static int getProtocolVersion() {
-        return 756;
+        return 758;
     }
 
     // TODO: 2022/4/22  

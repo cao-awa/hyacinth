@@ -59,11 +59,11 @@ public class ServerNetworkIo {
         return server;
     }
 
-    public void bind(@Nullable String address, int port) throws Exception {
+    public void bind(@Nullable String address, int port) throws UnknownHostException {
         bind(InetAddress.getByName(address), port);
     }
 
-        public void bind(@Nullable InetAddress address, int port) throws IOException {
+        public void bind(@Nullable InetAddress address, int port) {
         synchronized (this.channels) {
             Lazy<?> lazy;
             Class class_;

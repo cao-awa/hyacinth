@@ -3,7 +3,7 @@
  */
 package net.minecraft.util.thread;
 
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.ints.Int2BooleanFunction;
 import java.util.List;

@@ -5,9 +5,6 @@ import com.github.cao.awa.hyacinth.network.packet.Packet;
 import com.github.cao.awa.hyacinth.network.packet.buf.PacketByteBuf;
 import com.github.cao.awa.hyacinth.network.packet.listener.ServerHandshakePacketListener;
 import com.github.cao.awa.hyacinth.network.state.NetworkState;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HandshakeC2SPacket implements Packet<ServerHandshakePacketListener> {
     private static final int MAX_ADDRESS_LENGTH = 255;

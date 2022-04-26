@@ -59,8 +59,7 @@ public class MinecraftVersion
             MinecraftVersion minecraftVersion;
             if (inputStream == null) {
                 LOGGER.warn("Missing version information!");
-                GameVersion gameVersion = CURRENT;
-                return gameVersion;
+                return CURRENT;
             }
             try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream);){
                 minecraftVersion = new MinecraftVersion(JsonHelper.deserialize(inputStreamReader));

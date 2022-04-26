@@ -7,10 +7,10 @@ import java.util.function.IntPredicate;
 import com.github.cao.awa.hyacinth.math.box.Box;
 import com.github.cao.awa.hyacinth.math.vec.Vec3d;
 import com.github.cao.awa.hyacinth.math.vec.Vec3i;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import org.apache.commons.lang3.math.NumberUtils;
 
-public class Mathematics {
+public final class Mathematics {
     private static final int field_29850 = 1024;
     private static final float field_29851 = 1024.0f;
     private static final long field_29852 = 61440L;
@@ -18,6 +18,7 @@ public class Mathematics {
     private static final long field_29854 = -4611686018427387904L;
     private static final long field_29855 = Long.MIN_VALUE;
     private static final float PI = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196f;
+    private static final float PI2 = PI * 2;
     private static final float DG = PI / 180;
     public static final float HALF_PI = 1.5707964f;
     /**
@@ -30,8 +31,8 @@ public class Mathematics {
     public static final float SQUARE_ROOT_OF_TWO = sqrt(2.0f);
     private static final float DEGREES_TO_SINE_TABLE_INDEX = 10430.378f;
     private static final float[] SINE_TABLE = EntrustParser.operation(new float[65536], sineTable -> {
-        for (int i = 0; i < sineTable.length; ++i) {
-            sineTable[i] = (float) Math.sin(i * PI * 2d / 65536d);
+        for (int i = 0; i < sineTable.length; i++) {
+            sineTable[i] = (float) Math.sin(i * PI2 / 65536d);
         }
     });
     private static final Random RANDOM = new Random();

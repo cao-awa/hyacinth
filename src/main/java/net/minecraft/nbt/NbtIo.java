@@ -116,15 +116,13 @@ public class NbtIo {
             return;
         }
         switch (visitor.start(nbtType)) {
-            case HALT: {
-                break;
+            case HALT -> {
             }
-            case BREAK: {
+            case BREAK -> {
                 NbtString.skip(input);
                 nbtType.skip(input);
-                break;
             }
-            case CONTINUE: {
+            case CONTINUE -> {
                 NbtString.skip(input);
                 nbtType.doAccept(input, visitor);
             }

@@ -2,12 +2,13 @@ package com.github.cao.awa.hyacinth.network.packet.buf;
 
 import com.github.cao.awa.hyacinth.math.block.BlockPos;
 import com.github.cao.awa.hyacinth.network.text.Text;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import io.netty.buffer.*;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
+import it.unimi.dsi.fastutil.ints.*;
 import net.minecraft.nbt.*;
 import net.minecraft.util.identifier.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -21,11 +22,10 @@ import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 
 public class PacketByteBuf extends ByteBuf {
@@ -541,6 +541,205 @@ public class PacketByteBuf extends ByteBuf {
         } catch (IOException iOException) {
             throw new EncoderException(iOException);
         }
+    }
+
+    /**
+     * Reads a map from this buf. The map is stored as a leading
+     * {@linkplain #readVarInt() var int} size followed by each key and value
+     * pair.
+     *
+     * @param <K>
+     *         the key type
+     * @param <V>
+     *         the value type
+     * @param <M>
+     *         the map type
+     * @param mapFactory
+     *         a factory that creates a map with a given size
+     * @param valueParser
+     *         a parser that parses each value for the map given this buf
+     * @param keyParser
+     *         a parser that parses each key for the map given this buf
+     * @return the read map
+     * @see #writeMap(Map, BiConsumer, BiConsumer)
+     * @see #readMap(Function, Function)
+     */
+    public <K, V, M extends Map<K, V>> M readMap(IntFunction<M> mapFactory, Function<PacketByteBuf, K> keyParser, Function<PacketByteBuf, V> valueParser) {
+        int i = this.readVarInt();
+        Map<K, V> map = mapFactory.apply(i);
+        for (int j = 0; j < i; ++ j) {
+            K object = keyParser.apply(this);
+            V object2 = valueParser.apply(this);
+            map.put(object, object2);
+        }
+        return (M) map;
+    }
+
+    /**
+     * Reads a map from this buf as a hash map.
+     *
+     * @param <K>
+     *         the key type
+     * @param <V>
+     *         the value type
+     * @param valueParser
+     *         a parser that parses each value for the map given this buf
+     * @param keyParser
+     *         a parser that parses each key for the map given this buf
+     * @return the read map
+     * @see #readMap(IntFunction, Function, Function)
+     */
+    public <K, V> Map<K, V> readMap(Function<PacketByteBuf, K> keyParser, Function<PacketByteBuf, V> valueParser) {
+        return this.readMap(Maps::newHashMapWithExpectedSize, keyParser, valueParser);
+    }
+
+    /**
+     * Writes a map to this buf. The map is stored as a leading
+     * {@linkplain #readVarInt() var int} size followed by each key and value
+     * pair.
+     *
+     * @param <K>
+     *         the key type
+     * @param <V>
+     *         the value type
+     * @param map
+     *         the map to write
+     * @param keySerializer
+     *         a serializer that writes each key in the map to this buf
+     * @param valueSerializer
+     *         a serializer that writes each value in the map to this buf
+     * @see #readMap(IntFunction, Function, Function)
+     */
+    public <K, V> void
+    writeMap(Map<K, V> map, BiConsumer<PacketByteBuf, K> keySerializer, BiConsumer<PacketByteBuf, V> valueSerializer) {
+        this.writeVarInt(map.size());
+        map.forEach((key, value) -> {
+            keySerializer.accept(this, key);
+            valueSerializer.accept(this, value);
+        });
+    }
+
+    /**
+     * Reads a list of primitive ints from this buf. The ints are stored as var
+     * ints, with an extra var int in the beginning indicating the size.
+     *
+     * @return the read list
+     * @apiNote To limit the length of the list or array read, use
+     * {@link #readIntArray(int)}.
+     * @implNote A list of ints has the same format as an int array.
+     * @see #writeIntList(IntList)
+     * @see #readIntArray()
+     */
+    public IntList readIntList() {
+        int i = this.readVarInt();
+        IntArrayList intList = new IntArrayList();
+        for (int j = 0; j < i; ++ j) {
+            intList.add(this.readVarInt());
+        }
+        return intList;
+    }
+
+    /**
+     * Writes a list of primitive ints from this buf. The ints are stored as var
+     * ints, with an extra var int in the beginning indicating the size.
+     *
+     * @param list
+     *         the list to write
+     * @implNote A list of ints has the same format as an int array.
+     * @see #readIntList()
+     * @see #writeIntArray(int[])
+     */
+    public void writeIntList(IntList list) {
+        this.writeVarInt(list.size());
+        list.forEach((IntConsumer) this::writeVarInt);
+    }
+
+    /**
+     * Writes an array of primitive ints to this buf. The array first has a
+     * var int indicating its length, followed by the var int entries.
+     *
+     * @param array
+     *         the array to write
+     * @return this buf, for chaining
+     * @implNote An int array has the same format as a list of ints.
+     * @see #readIntArray(int)
+     * @see #writeIntArray(int[])
+     * @see #writeIntList(IntList)
+     */
+    public PacketByteBuf writeIntArray(int[] array) {
+        this.writeVarInt(array.length);
+        for (int i : array) {
+            this.writeVarInt(i);
+        }
+        return this;
+    }
+
+    /**
+     * Reads an array of primitive ints from this buf. The array first has a
+     * var int indicating its length, followed by the var int entries. The array
+     * does not have a length limit.
+     *
+     * @return the read byte array
+     * @implNote An int array has the same format as a list of ints.
+     * @see #readIntArray(int)
+     * @see #writeIntArray(int[])
+     * @see #readIntList()
+     */
+    public int[] readIntArray() {
+        return this.readIntArray(this.readableBytes());
+    }
+
+    /**
+     * Reads an array of primitive ints from this buf. The array first has a
+     * var int indicating its length, followed by the var int entries. The array
+     * has a length limit given by {@code maxSize}.
+     *
+     * @param maxSize
+     *         the max length of the read array
+     * @return the read byte array
+     * @throws io.netty.handler.codec.DecoderException
+     *         if the read array has a
+     *         length over {@code maxSize}
+     * @implNote An int array has the same format as a list of ints.
+     * @see #readIntArray()
+     * @see #writeIntArray(int[])
+     */
+    public int[] readIntArray(int maxSize) {
+        int i = this.readVarInt();
+        if (i > maxSize) {
+            throw new DecoderException("VarIntArray with size " + i + " is bigger than allowed " + maxSize);
+        }
+        int[] is = new int[i];
+        for (int j = 0; j < is.length; ++ j) {
+            is[j] = this.readVarInt();
+        }
+        return is;
+    }
+
+    /**
+     * Writes an enum constant to this buf. An enum constant is represented
+     * by a var int indicating its ordinal.
+     *
+     * @param instance
+     *         the enum constant to write
+     * @return this buf, for chaining
+     * @see #readEnumConstant(Class)
+     */
+    public PacketByteBuf writeEnumConstant(Enum<?> instance) {
+        return this.writeVarInt(instance.ordinal());
+    }
+
+    /**
+     * Reads an enum constant from this buf. An enum constant is represented
+     * by a var int indicating its ordinal.
+     *
+     * @param enumClass
+     *         the enum class, for constant lookup
+     * @return the read enum constant
+     * @see #writeEnumConstant(Enum)
+     */
+    public <T extends Enum<T>> T readEnumConstant(Class<T> enumClass) {
+        return (T) ((Enum[]) enumClass.getEnumConstants())[this.readVarInt()];
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.github.cao.awa.hyacinth.math.vec;
 import com.github.cao.awa.hyacinth.math.Mathematics;
 import com.github.cao.awa.hyacinth.math.matrix.Matrix3f;
 import com.github.cao.awa.hyacinth.math.quaternion.Quaternion;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;

@@ -3,7 +3,7 @@ package com.github.cao.awa.hyacinth.server.meta;
 import com.github.cao.awa.hyacinth.constants.SharedConstants;
 import com.github.cao.awa.hyacinth.network.text.LiteralText;
 import com.github.cao.awa.hyacinth.network.text.Text;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustExecution;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustExecution;
 import com.google.gson.*;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.util.json.JsonHelper;

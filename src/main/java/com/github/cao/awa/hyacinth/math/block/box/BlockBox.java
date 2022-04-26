@@ -4,7 +4,7 @@ import com.github.cao.awa.hyacinth.constants.SharedConstants;
 import com.github.cao.awa.hyacinth.math.block.BlockPos;
 import com.github.cao.awa.hyacinth.math.direction.Direction;
 import com.github.cao.awa.hyacinth.math.vec.Vec3i;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.base.MoreObjects;
 import com.mojang.serialization.Codec;
 import org.apache.logging.log4j.LogManager;

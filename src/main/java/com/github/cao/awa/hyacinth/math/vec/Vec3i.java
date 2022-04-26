@@ -3,7 +3,7 @@ package com.github.cao.awa.hyacinth.math.vec;
 import com.github.cao.awa.hyacinth.math.Mathematics;
 import com.github.cao.awa.hyacinth.math.direction.Direction;
 import com.github.cao.awa.hyacinth.math.position.Position;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.base.MoreObjects;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;

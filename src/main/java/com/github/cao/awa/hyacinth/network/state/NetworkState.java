@@ -22,7 +22,7 @@ import com.github.cao.awa.hyacinth.network.packet.listener.query.ClientQueryPack
 import com.github.cao.awa.hyacinth.network.packet.listener.query.ServerQueryPacketListener;
 import com.github.cao.awa.hyacinth.network.packet.s2c.query.QueryResponseS2CPacket;
 import com.github.cao.awa.hyacinth.network.packet.s2c.login.*;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -82,7 +82,7 @@ public enum NetworkState {
                     .register(WorldEventS2CPacket.class, WorldEventS2CPacket::new)
 //                    .register(ParticleS2CPacket.class, ParticleS2CPacket::new)
 //                    .register(LightUpdateS2CPacket.class, LightUpdateS2CPacket::new)
-//                    .register(GameJoinS2CPacket.class, GameJoinS2CPacket::new)
+                    .register(GameJoinS2CPacket.class, GameJoinS2CPacket::new)
 //                    .register(MapUpdateS2CPacket.class, MapUpdateS2CPacket::new)
 //                    .register(SetTradeOffersS2CPacket.class, SetTradeOffersS2CPacket::new)
 //                    .register(EntityS2CPacket.MoveRelative.class, EntityS2CPacket.MoveRelative::read)

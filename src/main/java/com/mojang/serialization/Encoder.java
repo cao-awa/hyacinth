@@ -16,7 +16,7 @@ public interface Encoder<A> {
    }
 
    default <B> Encoder<B> comap(final Function<? super B, ? extends A> function) {
-      return new Encoder<B>() {
+      return new Encoder<>() {
          public <T> DataResult<T> encode(B input, DynamicOps<T> ops, T prefix) {
             return Encoder.this.encode(function.apply(input), ops, prefix);
          }

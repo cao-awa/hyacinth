@@ -1,10 +1,9 @@
 package com.github.cao.awa.hyacinth.math.direction;
 
 import com.github.cao.awa.hyacinth.math.axis.AxisTransformation;
-import com.github.cao.awa.hyacinth.math.direction.Direction;
 import com.github.cao.awa.hyacinth.math.matrix.Matrix3f;
 import com.github.cao.awa.hyacinth.server.block.enums.JigsawOrientation;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;

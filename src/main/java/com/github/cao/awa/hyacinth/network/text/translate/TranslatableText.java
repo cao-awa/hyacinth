@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.util.identifier.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -199,6 +200,13 @@ public class TranslatableText
 
     public Object[] getArgs() {
         return this.args;
+    }
+
+    public static String createTranslationKey(String type, @Nullable Identifier id) {
+        if (id == null) {
+            return type + ".unregistered_sadface";
+        }
+        return type + "." + id.getNamespace() + "." + id.getPath().replace('/', '.');
     }
 }
 

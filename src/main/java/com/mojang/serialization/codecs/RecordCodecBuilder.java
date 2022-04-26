@@ -262,16 +262,16 @@ public final class RecordCodecBuilder<O, F> implements App<RecordCodecBuilder.Mu
          final RecordCodecBuilder<O, T2> f2 = RecordCodecBuilder.unbox(t2);
          final RecordCodecBuilder<O, T3> f3 = RecordCodecBuilder.unbox(t3);
          final RecordCodecBuilder<O, T4> f4 = RecordCodecBuilder.unbox(t4);
-         return new RecordCodecBuilder((o) -> (function.getter.apply((O) o)).apply(f1.getter.apply((O) o), f2.getter.apply((O) o), f3.getter.apply((O) o), f4.getter.apply((O) o)), (o) -> {
-            final MapEncoder<Function4<T1, T2, T3, T4, R>> fEncoder = function.encoder.apply((O) o);
-            final MapEncoder<T1> e1 = f1.encoder.apply((O) o);
-            final T1 v1 = f1.getter.apply((O) o);
-            final MapEncoder<T2> e2 = f2.encoder.apply((O) o);
-            final T2 v2 = f2.getter.apply((O) o);
-            final MapEncoder<T3> e3 = f3.encoder.apply((O) o);
-            final T3 v3 = f3.getter.apply((O) o);
-            final MapEncoder<T4> e4 = f4.encoder.apply((O) o);
-            final T4 v4 = f4.getter.apply((O) o);
+         return new RecordCodecBuilder<>((o) -> (function.getter.apply(o)).apply(f1.getter.apply(o), f2.getter.apply(o), f3.getter.apply(o), f4.getter.apply(o)), (o) -> {
+            final MapEncoder<Function4<T1, T2, T3, T4, R>> fEncoder = function.encoder.apply(o);
+            final MapEncoder<T1> e1 = f1.encoder.apply(o);
+            final T1 v1 = f1.getter.apply(o);
+            final MapEncoder<T2> e2 = f2.encoder.apply(o);
+            final T2 v2 = f2.getter.apply(o);
+            final MapEncoder<T3> e3 = f3.encoder.apply(o);
+            final T3 v3 = f3.getter.apply(o);
+            final MapEncoder<T4> e4 = f4.encoder.apply(o);
+            final T4 v4 = f4.getter.apply(o);
             return new MapEncoder.Implementation<R>() {
                public <T> RecordBuilder<T> encode(R input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
                   e1.encode(v1, ops, prefix);

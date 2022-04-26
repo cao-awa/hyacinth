@@ -1,16 +1,9 @@
 package net.minecraft.util.dynamic;
 
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
-import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.kinds.Applicative;
-import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;

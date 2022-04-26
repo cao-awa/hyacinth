@@ -1,6 +1,6 @@
 package net.minecraft.nbt.visitor;
 
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -27,7 +27,6 @@ import net.minecraft.nbt.NbtLongArray;
 import net.minecraft.nbt.NbtNull;
 import net.minecraft.nbt.NbtShort;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.nbt.visitor.NbtElementVisitor;
 
 /**
  * Formats an NBT element as a multiline string where named elements inside of compound objects

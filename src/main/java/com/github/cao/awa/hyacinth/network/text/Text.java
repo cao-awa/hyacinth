@@ -2,7 +2,7 @@ package com.github.cao.awa.hyacinth.network.text;
 
 import com.github.cao.awa.hyacinth.network.text.style.Style;
 import com.github.cao.awa.hyacinth.network.text.visitor.StringVisitable;
-import com.github.zhuaidadaya.rikaishinikui.handler.entrust.EntrustParser;
+import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustParser;
 import com.google.common.collect.Lists;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;

@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.0.9 (FabricMC cc05e23f).
- */
 package net.minecraft.nbt.visitor;
 
 import net.minecraft.nbt.NbtByte;
@@ -21,30 +18,30 @@ import net.minecraft.nbt.NbtString;
  * A visitor interface for NBT elements.
  */
 public interface NbtElementVisitor {
-    public void visitString(NbtString var1);
+    void visitString(NbtString var1);
 
-    public void visitByte(NbtByte var1);
+    void visitByte(NbtByte var1);
 
-    public void visitShort(NbtShort var1);
+    void visitShort(NbtShort var1);
 
-    public void visitInt(NbtInt var1);
+    void visitInt(NbtInt var1);
 
-    public void visitLong(NbtLong var1);
+    void visitLong(NbtLong var1);
 
-    public void visitFloat(NbtFloat var1);
+    void visitFloat(NbtFloat var1);
 
-    public void visitDouble(NbtDouble var1);
+    void visitDouble(NbtDouble var1);
 
-    public void visitByteArray(NbtByteArray var1);
+    void visitByteArray(NbtByteArray var1);
 
-    public void visitIntArray(NbtIntArray var1);
+    void visitIntArray(NbtIntArray var1);
 
-    public void visitLongArray(NbtLongArray var1);
+    void visitLongArray(NbtLongArray var1);
 
-    public void visitList(NbtList var1);
+    void visitList(NbtList var1);
 
-    public void visitCompound(NbtCompound var1);
+    void visitCompound(NbtCompound var1);
 
-    public void visitNull(NbtNull var1);
+    void visitNull(NbtNull var1);
 }
 
