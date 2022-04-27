@@ -8,15 +8,14 @@ import com.github.cao.awa.hyacinth.network.state.NetworkState;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.*;
 
 import java.io.IOException;
 
 public class PacketEncoder
         extends MessageToByteEncoder<Packet<?>> {
     private static final Logger LOGGER = LogManager.getLogger("Packet:Encoder");
-//    private static final Marker MARKER = MarkerManager.getMarker("PACKET_SENT", ClientConnection.NETWORK_PACKETS_MARKER);
+    private static final Marker MARKER = MarkerManager.getMarker("PACKET_SENT", ClientConnection.NETWORK_PACKETS_MARKER);
     private final NetworkSide side;
 
     public PacketEncoder(NetworkSide side) {
@@ -31,7 +30,7 @@ public class PacketEncoder
         }
         Integer integer = networkState.getPacketId(this.side, packet);
         if (LOGGER.isDebugEnabled()) {
-//            LOGGER.debug(MARKER, "OUT: [{}:{}] {}", (Object)channelHandlerContext.channel().attr(ClientConnection.PROTOCOL_ATTRIBUTE_KEY).get(), (Object)integer, (Object)packet.getClass().getName());
+            LOGGER.debug(MARKER, "OUT: [{}:{}] {}", channelHandlerContext.channel().attr(ClientConnection.PROTOCOL_ATTRIBUTE_KEY).get(), (Object)integer, (Object)packet.getClass().getName());
         }
         if (integer == null) {
             throw new IOException("Can't serialize unregistered packet");

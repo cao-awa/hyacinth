@@ -1,5 +1,7 @@
 package com.github.cao.awa.hyacinth.network.state;
 
+import com.github.cao.awa.hyacinth.*;
+import com.github.cao.awa.hyacinth.logging.*;
 import com.github.cao.awa.hyacinth.network.packet.c2s.play.*;
 import com.github.cao.awa.hyacinth.network.packet.listener.play.ClientPlayPacketListener;
 import com.github.cao.awa.hyacinth.network.packet.listener.play.ServerPlayPacketListener;
@@ -116,7 +118,7 @@ public enum NetworkState {
 //                    .register(WorldBorderWarningTimeChangedS2CPacket.class, WorldBorderWarningTimeChangedS2CPacket::new)
 //                    .register(WorldBorderWarningBlocksChangedS2CPacket.class, WorldBorderWarningBlocksChangedS2CPacket::new)
 //                    .register(SetCameraEntityS2CPacket.class, SetCameraEntityS2CPacket::new)
-//                    .register(UpdateSelectedSlotS2CPacket.class, UpdateSelectedSlotS2CPacket::new)
+                    .register(UpdateSelectedSlotS2CPacket.class, UpdateSelectedSlotS2CPacket::new)
                     .register(ChunkRenderDistanceCenterS2CPacket.class, ChunkRenderDistanceCenterS2CPacket::new)
                     .register(ChunkLoadDistanceS2CPacket.class, ChunkLoadDistanceS2CPacket::new)
                     .register(PlayerSpawnPositionS2CPacket.class, PlayerSpawnPositionS2CPacket::new)
@@ -176,7 +178,7 @@ public enum NetworkState {
 //            .register(UpdatePlayerAbilitiesC2SPacket.class, UpdatePlayerAbilitiesC2SPacket::new)
 //            .register(PlayerActionC2SPacket.class, PlayerActionC2SPacket::new)
 //            .register(ClientCommandC2SPacket.class, ClientCommandC2SPacket::new)
-//            .register(PlayerInputC2SPacket.class, PlayerInputC2SPacket::new)
+            .register(PlayerInputC2SPacket.class, PlayerInputC2SPacket::new)
             .register(PlayPongC2SPacket.class, PlayPongC2SPacket::new)
 //            .register(RecipeCategoryOptionsC2SPacket.class, RecipeCategoryOptionsC2SPacket::new)
 //            .register(RecipeBookDataC2SPacket.class, RecipeBookDataC2SPacket::new)
@@ -254,6 +256,9 @@ public enum NetworkState {
 
     @Nullable
     public Integer getPacketId(NetworkSide side, Packet<?> packet) {
+        PrintUtil.messageToTracker(
+                packet.getClass() + ":" + packetHandlers.get(side).getId(packet.getClass()) + ":" + side
+        );
         return this.packetHandlers.get(side).getId(packet.getClass());
     }
 

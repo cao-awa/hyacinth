@@ -1,11 +1,13 @@
 package com.github.cao.awa.hyacinth.network.handler.play;
 
+import com.github.cao.awa.hyacinth.math.vec.*;
 import com.github.cao.awa.hyacinth.network.connection.ClientConnection;
 import com.github.cao.awa.hyacinth.network.packet.Packet;
 import com.github.cao.awa.hyacinth.network.packet.c2s.play.*;
 import com.github.cao.awa.hyacinth.network.packet.listener.play.ServerPlayPacketListener;
 import com.github.cao.awa.hyacinth.network.packet.s2c.disconnect.DisconnectS2CPacket;
 import com.github.cao.awa.hyacinth.network.packet.s2c.play.*;
+import com.github.cao.awa.hyacinth.network.state.*;
 import com.github.cao.awa.hyacinth.network.text.Text;
 import com.github.cao.awa.hyacinth.network.text.translate.*;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
@@ -17,6 +19,8 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.logging.log4j.*;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.*;
+
 public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerPlayPacketListener {
     private static final Logger LOGGER = LogManager.getLogger("Handler:Play");
     private ClientConnection connection;
@@ -25,6 +29,16 @@ public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerP
     private boolean waitingForKeepAlive;
     private long keepAliveId;
     private long lastKeepAliveTime;
+    private Vec3d requestedTeleportPos;
+    private int requestedTeleportId;
+    private int teleportRequestTick;
+    private double lastTickX;
+    private double lastTickY;
+    private double lastTickZ;
+    private double updatedX;
+    private double updatedY;
+    private double updatedZ;
+    private int ticks;
 
     public ServerPlayNetworkHandler(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player) {
         this.server = server;
@@ -42,7 +56,7 @@ public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerP
         this.player.prevZ = this.player.getZ();
 //        this.player.playerTick();
 //        this.player.updatePositionAndAngles(this.lastTickX, this.lastTickY, this.lastTickZ, this.player.getYaw(), this.player.getPitch());
-//        ++ this.ticks;
+        ++ this.ticks;
 //        this.lastTickMovePacketsCount = this.movePacketsCount;
 //        if(this.floating && ! this.player.isSleeping()) {
 //            if(++ this.floatingTicks > 80) {
@@ -121,6 +135,7 @@ public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerP
         try {
             this.connection.send(packet, listener);
         } catch (Throwable throwable) {
+            throwable.printStackTrace();
 //            CrashReport crashReport = CrashReport.create(throwable, "Sending packet");
 //            CrashReportSection crashReportSection = crashReport.addElement("Packet being sent");
 //            crashReportSection.add("Packet class", () -> packet.getClass().getCanonicalName());
@@ -254,5 +269,32 @@ public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerP
     @Override
     public void onUpdateDifficultyLock(UpdateDifficultyLockC2SPacket var1) {
 
+    }
+
+    public void requestTeleportAndDismount(double x, double y, double z, float yaw, float pitch) {
+        this.requestTeleport(x, y, z, yaw, pitch, Collections.emptySet(), true);
+    }
+
+    public void requestTeleport(double x, double y, double z, float yaw, float pitch) {
+        this.requestTeleport(x, y, z, yaw, pitch, Collections.emptySet(), false);
+    }
+
+    public void requestTeleport(double x, double y, double z, float yaw, float pitch, Set<PlayerPositionLookS2CPacket.Flag> flags) {
+        this.requestTeleport(x, y, z, yaw, pitch, flags, false);
+    }
+
+    public void requestTeleport(double x, double y, double z, float yaw, float pitch, Set<PlayerPositionLookS2CPacket.Flag> flags, boolean shouldDismount) {
+        double d = flags.contains(PlayerPositionLookS2CPacket.Flag.X) ? this.player.getX() : 0.0;
+        double e = flags.contains(PlayerPositionLookS2CPacket.Flag.Y) ? this.player.getY() : 0.0;
+        double f = flags.contains(PlayerPositionLookS2CPacket.Flag.Z) ? this.player.getZ() : 0.0;
+        float g = flags.contains(PlayerPositionLookS2CPacket.Flag.Y_ROT) ? this.player.getYaw() : 0.0f;
+        float h = flags.contains(PlayerPositionLookS2CPacket.Flag.X_ROT) ? this.player.getPitch() : 0.0f;
+        this.requestedTeleportPos = new Vec3d(x, y, z);
+        if(++ this.requestedTeleportId == Integer.MAX_VALUE) {
+            this.requestedTeleportId = 0;
+        }
+        this.teleportRequestTick = this.ticks;
+//        this.player.updatePositionAndAngles(x, y, z, yaw, pitch);
+        this.player.networkHandler.sendPacket(new PlayerPositionLookS2CPacket(x - d, y - e, z - f, yaw - g, pitch - h, flags, this.requestedTeleportId, shouldDismount));
     }
 }

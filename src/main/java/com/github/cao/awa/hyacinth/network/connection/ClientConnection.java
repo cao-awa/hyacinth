@@ -1,5 +1,6 @@
 package com.github.cao.awa.hyacinth.network.connection;
 
+import com.github.cao.awa.hyacinth.logging.*;
 import com.github.cao.awa.hyacinth.math.Mathematics;
 import com.github.cao.awa.hyacinth.network.OffThreadException;
 import com.github.cao.awa.hyacinth.network.encryption.PacketDecryptor;
@@ -22,8 +23,7 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.*;
 import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.Cipher;
@@ -31,6 +31,8 @@ import java.net.SocketAddress;
 import java.util.Queue;
 
 public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
+    public static final Marker NETWORK_MARKER = MarkerManager.getMarker("NETWORK");
+    public static final Marker NETWORK_PACKETS_MARKER = MarkerManager.getMarker("NETWORK_PACKETS", NETWORK_MARKER);
     public static final AttributeKey<NetworkState> PROTOCOL_ATTRIBUTE_KEY = AttributeKey.valueOf("protocol");
     private static final Logger LOGGER = LogManager.getLogger("Connection");
     private final Queue<QueuedPacket> packetQueue = Queues.newConcurrentLinkedQueue();
@@ -55,10 +57,6 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
         return this.averagePacketsReceived;
     }
 
-    private static <T extends PacketListener> void handlePacket(Packet<T> packet, T listener) {
-        packet.apply(listener);
-    }
-
     public boolean hasChannel() {
         return this.channel == null;
     }
@@ -68,7 +66,7 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
         if (this.packetListener instanceof ServerLoginNetworkHandler) {
             ((ServerLoginNetworkHandler) this.packetListener).tick();
         }
-        if(this.packetListener instanceof ServerPlayNetworkHandler) {
+        if (this.packetListener instanceof ServerPlayNetworkHandler) {
             ((ServerPlayNetworkHandler) this.packetListener).tick();
         }
         if (! this.isOpen() && ! this.disconnected) {
@@ -129,8 +127,10 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
         NetworkState networkState2 = getState();
         ++ packetsSentCounter;
         if (networkState2 != networkState) {
-            LOGGER.debug("Disabled auto read");
-            channel.config().setAutoRead(false);
+            if (channel.config().isAutoRead()) {
+                channel.config().setAutoRead(false);
+                LOGGER.debug("Disabled auto read");
+            }
         }
         if (channel.eventLoop().inEventLoop()) {
             sendInternal(packet, callback, networkState, networkState2);
@@ -156,8 +156,10 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
 
     public void setState(NetworkState state) {
         channel.attr(PROTOCOL_ATTRIBUTE_KEY).set(state);
-        channel.config().setAutoRead(true);
-        LOGGER.debug("Enabled auto read");
+        if (! channel.config().isAutoRead()) {
+            channel.config().setAutoRead(true);
+            LOGGER.debug("Enabled auto read");
+        }
     }
 
     protected void updateStats() {
@@ -176,6 +178,7 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
     }
 
     public void send(Packet<?> packet) {
+        System.out.println("sending: " + packet.getClass().getName());
         send(packet, null);
     }
 
@@ -224,6 +227,11 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
         }
     }
 
+    private static <T extends PacketListener> void handlePacket(Packet<T> packet, T listener) {
+        System.out.println("handling: " + packet.getClass().getName());
+        packet.apply(listener);
+    }
+
     public void disconnect(Text disconnectReason) {
         if (this.channel.isOpen()) {
             this.channel.close().awaitUninterruptibly();
@@ -251,22 +259,22 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
      *         whether this connection may abort if a compressed packet with a bad size is received
      */
     public void setCompressionThreshold(int compressionThreshold, boolean rejectsBadPackets) {
-        if(compressionThreshold > -1) {
-            if(this.channel.pipeline().get("decompress") instanceof PacketInflater) {
+        if (compressionThreshold > - 1) {
+            if (this.channel.pipeline().get("decompress") instanceof PacketInflater) {
                 ((PacketInflater) this.channel.pipeline().get("decompress")).setCompressionThreshold(compressionThreshold, rejectsBadPackets);
             } else {
                 this.channel.pipeline().addBefore("decoder", "decompress", new PacketInflater(compressionThreshold, rejectsBadPackets));
             }
-            if(this.channel.pipeline().get("compress") instanceof PacketDeflater) {
+            if (this.channel.pipeline().get("compress") instanceof PacketDeflater) {
                 ((PacketDeflater) this.channel.pipeline().get("compress")).setCompressionThreshold(compressionThreshold);
             } else {
                 this.channel.pipeline().addBefore("encoder", "compress", new PacketDeflater(compressionThreshold));
             }
         } else {
-            if(this.channel.pipeline().get("decompress") instanceof PacketInflater) {
+            if (this.channel.pipeline().get("decompress") instanceof PacketInflater) {
                 this.channel.pipeline().remove("decompress");
             }
-            if(this.channel.pipeline().get("compress") instanceof PacketDeflater) {
+            if (this.channel.pipeline().get("compress") instanceof PacketDeflater) {
                 this.channel.pipeline().remove("compress");
             }
         }

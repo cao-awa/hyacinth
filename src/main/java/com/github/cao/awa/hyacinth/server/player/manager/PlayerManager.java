@@ -147,14 +147,16 @@ public class PlayerManager {
         networkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.CREATIVE, GameMode.CREATIVE, this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), 0, server.getMaxPlayerCount(), 12,12, false, false, false, true));
 
         //        networkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), worldProperties.isHardcore(), player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), BiomeAccess.hashSeed(world2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, world2.isDebugWorld(), world2.isFlat()));
-//        networkHandler.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, new PacketByteBuf(Unpooled.buffer()).writeString(this.getServer().getServerModName())));
+        networkHandler.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, new PacketByteBuf(Unpooled.buffer()).writeString(this.getServer().getServerModName())));
 //        networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
 //        networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
 //        networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(player.getInventory().selectedSlot));
 //        networkHandler.sendPacket(new SynchronizeRecipesS2CPacket(this.server.getRecipeManager().values()));
 //        networkHandler.sendPacket(new SynchronizeTagsS2CPacket(this.server.getTagManager().toPacket(this.registryManager)));
 
-//        player.networkHandler.sendPacket(new PlayerListS2CPacket(PlayerListS2CPacket.Action.ADD_PLAYER, serverPlayerEntity));
+        networkHandler.requestTeleport(player.getX(), player.getY(), player.getZ(), player.getYaw(), player.getPitch());
+
+        //        player.networkHandler.sendPacket(new PlayerListS2CPacket(PlayerListS2CPacket.Action.ADD_PLAYER, serverPlayerEntity));
         System.out.println("connecting");
     }
 
@@ -177,7 +179,8 @@ public class PlayerManager {
         this.viewDistance = viewDistance;
         this.sendToAll(new ChunkLoadDistanceS2CPacket(viewDistance));
         for (ServerWorld serverWorld : this.server.getWorlds()) {
-            if (serverWorld == null) continue;
+            if (serverWorld == null)
+                continue;
 //            serverWorld.getChunkManager().applyViewDistance(viewDistance);
         }
     }

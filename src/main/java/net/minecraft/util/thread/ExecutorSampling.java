@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.0.9 (FabricMC cc05e23f).
- */
 package net.minecraft.util.thread;
 
 import java.util.List;
@@ -9,12 +6,11 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import net.minecraft.util.profiler.Sampler;
-import net.minecraft.util.thread.SampleableExecutor;
 import org.jetbrains.annotations.Nullable;
 
 public class ExecutorSampling {
     public static final ExecutorSampling INSTANCE = new ExecutorSampling();
-    private final WeakHashMap<SampleableExecutor, Void> activeExecutors = new WeakHashMap();
+    private final WeakHashMap<SampleableExecutor, Void> activeExecutors = new WeakHashMap<>();
 
     private ExecutorSampling() {
     }
@@ -30,9 +26,9 @@ public class ExecutorSampling {
 
     private static List<Sampler> mergeSimilarSamplers(Map<String, List<Sampler>> samplers) {
         return samplers.entrySet().stream().map(entry -> {
-            String string = (String)entry.getKey();
-            List list = (List)entry.getValue();
-            return list.size() > 1 ? new MergedSampler(string, list) : (Sampler)list.get(0);
+            String string = entry.getKey();
+            List<Sampler> list = entry.getValue();
+            return list.size() > 1 ? new MergedSampler(string, list) : list.get(0);
         }).collect(Collectors.toList());
     }
 

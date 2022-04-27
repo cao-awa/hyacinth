@@ -18,7 +18,7 @@ import java.util.List;
 
 public class DecoderHandler extends ByteToMessageDecoder {
     private static final Logger LOGGER = LogManager.getLogger();
-    //    private static final Marker MARKER = MarkerManager.getMarker("PACKET_RECEIVED", ClientConnection.NETWORK_PACKETS_MARKER);
+        private static final Marker MARKER = MarkerManager.getMarker("PACKET_RECEIVED", ClientConnection.NETWORK_PACKETS_MARKER);
     private final NetworkSide side;
 
     public DecoderHandler(NetworkSide side) {
@@ -44,7 +44,7 @@ public class DecoderHandler extends ByteToMessageDecoder {
         }
         objects.add(packet);
         if (LOGGER.isDebugEnabled()) {
-//            LOGGER.debug(MARKER, " IN: [{}:{}] {}", (Object)ctx.channel().attr(ClientConnection.PROTOCOL_ATTRIBUTE_KEY).get(), (Object)j, (Object)packet.getClass().getName());
+            LOGGER.debug(MARKER, " IN: [{}:{}] {}", ctx.channel().attr(ClientConnection.PROTOCOL_ATTRIBUTE_KEY).get(), j, packet.getClass().getName());
         }
     }
 }

@@ -13,6 +13,7 @@ import com.github.cao.awa.hyacinth.network.packet.s2c.login.LoginCompressionS2CP
 import com.github.cao.awa.hyacinth.network.packet.s2c.login.LoginDisconnectS2CPacket;
 import com.github.cao.awa.hyacinth.network.packet.s2c.login.LoginHelloS2CPacket;
 import com.github.cao.awa.hyacinth.network.packet.s2c.login.LoginSuccessS2CPacket;
+import com.github.cao.awa.hyacinth.network.state.*;
 import com.github.cao.awa.hyacinth.network.text.*;
 import com.github.cao.awa.hyacinth.network.text.translate.TranslatableText;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
@@ -95,6 +96,7 @@ public class ServerLoginNetworkHandler implements ServerLoginPacketListener {
             this.disconnect(text);
         } else {
             this.state = LoginState.ACCEPTED;
+            connection.setState(NetworkState.PLAY);
             if (this.server.getNetworkCompressionThreshold() > - 1) {
                 this.connection.send(new LoginCompressionS2CPacket(this.server.getNetworkCompressionThreshold()), channelFuture -> this.connection.setCompressionThreshold(this.server.getNetworkCompressionThreshold(), true));
             }

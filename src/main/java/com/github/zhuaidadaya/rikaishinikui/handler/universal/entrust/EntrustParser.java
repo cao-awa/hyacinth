@@ -155,7 +155,7 @@ public class EntrustParser {
     public static <V> CompletableFuture<List<V>> combine(List<? extends CompletableFuture<? extends V>> futures) {
         ArrayList<@Nullable Object> list = Lists.newArrayListWithCapacity(futures.size());
         CompletableFuture[] completableFutures = new CompletableFuture[futures.size()];
-        CompletableFuture completableFuture = new CompletableFuture();
+        CompletableFuture completableFuture = new CompletableFuture<>();
         futures.forEach(future -> {
             int i = list.size();
             list.add(null);

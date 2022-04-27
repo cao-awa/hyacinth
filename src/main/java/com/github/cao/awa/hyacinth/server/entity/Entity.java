@@ -25,6 +25,8 @@ public abstract class Entity implements Nameable, EntityLike, CommandOutput {
     public static final int SPRINTING_FLAG_INDEX = 3;
     public static final int SWIMMING_FLAG_INDEX = 4;
     public static final int INVISIBLE_FLAG_INDEX = 5;
+    private static final Box NULL_BOX = new Box(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    private Box entityBounds = NULL_BOX;
 
     public Random getRandom() {
         return random;
@@ -342,5 +344,9 @@ public abstract class Entity implements Nameable, EntityLike, CommandOutput {
         public boolean shouldSave() {
             return this.save;
         }
+    }
+
+    public final void setBoundingBox(Box boundingBox) {
+        this.entityBounds = boundingBox;
     }
 }

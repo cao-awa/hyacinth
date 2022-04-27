@@ -1,5 +1,6 @@
 package com.github.cao.awa.hyacinth;
 
+import com.github.cao.awa.hyacinth.logging.*;
 import com.github.cao.awa.hyacinth.network.*;
 import com.github.cao.awa.hyacinth.network.text.Text;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
@@ -74,6 +75,8 @@ public class HyacinthServer extends MinecraftServer {
     }
 
     public static void main(String[] args) {
+        PrintUtil.debugging = true;
+
         EntrustExecution.catchingTemporary(() -> {
             createGameVersion();
             Bootstrap.initialize();
