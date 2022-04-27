@@ -2,13 +2,8 @@ package com.github.cao.awa.hyacinth.logging;
 
 import org.apache.logging.log4j.Logger;
 
-public class UncaughtExceptionLogger
-implements Thread.UncaughtExceptionHandler {
-    private final Logger logger;
-
-    public UncaughtExceptionLogger(Logger logger) {
-        this.logger = logger;
-    }
+public record UncaughtExceptionLogger(Logger logger)
+        implements Thread.UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread thread, Throwable throwable) {

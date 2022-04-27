@@ -4,6 +4,8 @@ import com.github.cao.awa.hyacinth.constants.SharedConstants;
 import com.github.cao.awa.hyacinth.network.ServerNetworkIo;
 import com.github.cao.awa.hyacinth.server.command.output.CommandOutput;
 import com.github.cao.awa.hyacinth.server.dimension.*;
+import com.github.cao.awa.hyacinth.server.entity.player.*;
+import com.github.cao.awa.hyacinth.server.filter.*;
 import com.github.cao.awa.hyacinth.server.meta.ServerMetadata;
 import com.github.cao.awa.hyacinth.server.player.manager.PlayerManager;
 import com.github.cao.awa.hyacinth.server.task.ServerTask;
@@ -13,6 +15,7 @@ import com.github.cao.awa.hyacinth.server.world.level.storage.LevelStorage;
 import com.github.zhuaidadaya.rikaishinikui.handler.times.TimeUtil;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
+import net.minecraft.util.profiler.*;
 import net.minecraft.util.registry.*;
 import net.minecraft.util.thread.ReentrantThreadExecutor;
 import org.apache.commons.lang3.Validate;
@@ -62,6 +65,9 @@ public abstract class MinecraftServer extends ReentrantThreadExecutor<ServerTask
     private long timeReference;
     private short serverPort = 25565;
     private String serverHost = "127.0.0.1";
+    private int playerIdleTimeout;
+    private Recorder recorder = DummyRecorder.INSTANCE;
+    private Profiler profiler = this.recorder.getProfiler();
 
     public MinecraftServer(Thread serverThread, DynamicRegistryManager.Impl registryManager) throws UnknownHostException {
         super("Server");
@@ -266,5 +272,21 @@ public abstract class MinecraftServer extends ReentrantThreadExecutor<ServerTask
 
     public String getServerModName() {
         return HYACINTH;
+    }
+
+    public int getPlayerIdleTimeout() {
+        return this.playerIdleTimeout;
+    }
+
+    public void setPlayerIdleTimeout(int playerIdleTimeout) {
+        this.playerIdleTimeout = playerIdleTimeout;
+    }
+
+    public Profiler getProfiler() {
+        return this.profiler;
+    }
+
+    public TextStream createFilterer(ServerPlayerEntity player) {
+        return TextStream.UNFILTERED;
     }
 }

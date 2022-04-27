@@ -8,20 +8,14 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.ListBuilder;
-import java.util.Iterator;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 import org.apache.commons.lang3.mutable.MutableObject;
 
-public final class ListCodec<A> implements Codec<List<A>> {
-   private final Codec<A> elementCodec;
-
-   public ListCodec(Codec<A> elementCodec) {
-      this.elementCodec = elementCodec;
-   }
-
+public record ListCodec<A>(Codec<A> elementCodec) implements Codec<List<A>> {
    public <T> DataResult<T> encode(List<A> input, DynamicOps<T> ops, T prefix) {
       ListBuilder<T> builder = ops.listBuilder();
 
@@ -36,7 +30,7 @@ public final class ListCodec<A> implements Codec<List<A>> {
       return ops.getList(input).setLifecycle(Lifecycle.stable()).flatMap((stream) -> {
          ImmutableList.Builder<A> read = ImmutableList.builder();
          Builder<T> failed = Stream.builder();
-         MutableObject<DataResult<Unit>> result = new MutableObject(DataResult.success(Unit.INSTANCE, Lifecycle.stable()));
+         MutableObject<DataResult<Unit>> result = new MutableObject<>(DataResult.success(Unit.INSTANCE, Lifecycle.stable()));
          stream.accept((t) -> {
             DataResult<Pair<A, T>> element = this.elementCodec.decode(ops, t);
             element.error().ifPresent((e) -> failed.add(t));
@@ -56,7 +50,7 @@ public final class ListCodec<A> implements Codec<List<A>> {
       if (this == o) {
          return true;
       } else if (o != null && this.getClass() == o.getClass()) {
-         ListCodec<?> listCodec = (ListCodec)o;
+         ListCodec<?> listCodec = (ListCodec<?>) o;
          return Objects.equals(this.elementCodec, listCodec.elementCodec);
       } else {
          return false;

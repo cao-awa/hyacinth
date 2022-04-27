@@ -25,7 +25,7 @@ public interface MapEncoder<A> extends Keyable {
          }
 
          public String toString() {
-            return MapEncoder.this.toString() + "[comapped]";
+            return MapEncoder.this + "[comapped]";
          }
       };
    }
@@ -37,15 +37,15 @@ public interface MapEncoder<A> extends Keyable {
          }
 
          public <T> RecordBuilder<T> encode(B input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
-            DataResult<? extends A> aResult = (DataResult)function.apply(input);
+            DataResult<? extends A> aResult = function.apply(input);
             RecordBuilder<T> builder = prefix.withErrorsFrom(aResult);
-            return (RecordBuilder)aResult.map((r) -> {
+            return aResult.map((r) -> {
                return MapEncoder.this.encode(r, ops, builder);
             }).result().orElse(builder);
          }
 
          public String toString() {
-            return MapEncoder.this.toString() + "[flatComapped]";
+            return MapEncoder.this + "[flatComapped]";
          }
       };
    }
@@ -85,7 +85,7 @@ public interface MapEncoder<A> extends Keyable {
          }
 
          protected List<T> initBuilder() {
-            List<T> list = new ArrayList(compressor.size());
+            List<T> list = new ArrayList<>(compressor.size());
 
             for(int i = 0; i < compressor.size(); ++i) {
                list.add(null);
@@ -107,6 +107,6 @@ public interface MapEncoder<A> extends Keyable {
       return new CompressedRecordBuilder();
    }
 
-   public abstract static class Implementation<A> extends CompressorHolder implements MapEncoder<A> {
+   abstract class Implementation<A> extends CompressorHolder implements MapEncoder<A> {
    }
 }

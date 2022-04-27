@@ -12,6 +12,7 @@ import com.github.cao.awa.hyacinth.network.text.LiteralText;
 import com.github.cao.awa.hyacinth.network.text.Text;
 import com.github.cao.awa.hyacinth.network.text.translate.TranslatableText;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
+import org.apache.logging.log4j.*;
 
 public class ServerHandshakeNetworkHandler implements ServerHandshakePacketListener {
     private static final Text IGNORING_STATUS_REQUEST_MESSAGE = new LiteralText("Ignoring status request");
@@ -32,8 +33,7 @@ public class ServerHandshakeNetworkHandler implements ServerHandshakePacketListe
                     this.connection.setPacketListener(new ServerLoginNetworkHandler(this.server, this.connection));
                     break;
                 }
-                TranslatableText text = packet.getProtocolVersion() < 754 ? new TranslatableText("multiplayer.disconnect.outdated_client") : new TranslatableText("multiplayer.disconnect.incompatible", SharedConstants.getGameVersion().getName());
-//                TranslatableText text = packet.getProtocolVersion() < 754 ? new TranslatableText("multiplayer.disconnect.outdated_client", SharedConstants.getGameVersion().getName()) : new TranslatableText("multiplayer.disconnect.incompatible", SharedConstants.getGameVersion().getName());
+                TranslatableText text = packet.getProtocolVersion() < 754 ? new TranslatableText("multiplayer.disconnect.outdated_client", SharedConstants.getGameVersion().getName()) : new TranslatableText("multiplayer.disconnect.incompatible", SharedConstants.getGameVersion().getName());
                 this.connection.send(new LoginDisconnectS2CPacket(text));
                 this.connection.disconnect(text);
             }

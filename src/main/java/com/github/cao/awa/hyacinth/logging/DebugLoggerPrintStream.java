@@ -2,8 +2,7 @@ package com.github.cao.awa.hyacinth.logging;
 
 import java.io.OutputStream;
 
-public class DebugLoggerPrintStream
-extends LoggerPrintStream {
+public class DebugLoggerPrintStream extends LoggerPrintStream {
     public DebugLoggerPrintStream(String string, OutputStream outputStream) {
         super(string, outputStream);
     }

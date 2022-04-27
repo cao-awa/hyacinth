@@ -20,23 +20,15 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public final class RecordCodecBuilder<O, F> implements App<RecordCodecBuilder.Mu<O>, F> {
-   private final Function<O, F> getter;
-   private final Function<O, MapEncoder<F>> encoder;
-   private final MapDecoder<F> decoder;
-
+public record RecordCodecBuilder<O, F>(Function<O, F> getter,
+                                       Function<O, MapEncoder<F>> encoder,
+                                       MapDecoder<F> decoder) implements App<RecordCodecBuilder.Mu<O>, F> {
    public static <O, F> RecordCodecBuilder<O, F> unbox(App<RecordCodecBuilder.Mu<O>, F> box) {
-      return (RecordCodecBuilder)box;
-   }
-
-   private RecordCodecBuilder(Function<O, F> getter, Function<O, MapEncoder<F>> encoder, MapDecoder<F> decoder) {
-      this.getter = getter;
-      this.encoder = encoder;
-      this.decoder = decoder;
+      return (RecordCodecBuilder<O, F>) box;
    }
 
    public static <O> RecordCodecBuilder.Instance<O> instance() {
-      return new RecordCodecBuilder.Instance();
+      return new RecordCodecBuilder.Instance<>();
    }
 
    public static <O, F> RecordCodecBuilder<O, F> of(Function<O, F> getter, String name, Codec<F> fieldCodec) {
@@ -44,11 +36,11 @@ public final class RecordCodecBuilder<O, F> implements App<RecordCodecBuilder.Mu
    }
 
    public static <O, F> RecordCodecBuilder<O, F> of(Function<O, F> getter, MapCodec<F> codec) {
-      return new RecordCodecBuilder(getter, (o) -> codec, codec);
+      return new RecordCodecBuilder<>(getter, (o) -> codec, codec);
    }
 
    public static <O, F> RecordCodecBuilder<O, F> point(F instance) {
-      return new RecordCodecBuilder((o) -> instance, (o) -> Encoder.empty(), Decoder.unit(instance));
+      return new RecordCodecBuilder<>((o) -> instance, (o) -> Encoder.empty(), Decoder.unit(instance));
    }
 
    public static <O, F> RecordCodecBuilder<O, F> stable(F instance) {
@@ -72,7 +64,7 @@ public final class RecordCodecBuilder<O, F> implements App<RecordCodecBuilder.Mu
    }
 
    public <E> RecordCodecBuilder<O, E> dependent(Function<O, E> getter, final MapEncoder<E> encoder, final Function<? super F, ? extends MapDecoder<E>> decoderGetter) {
-      return new RecordCodecBuilder(getter, (o) -> encoder, new MapDecoder.Implementation<E>() {
+      return new RecordCodecBuilder<>(getter, (o) -> encoder, new MapDecoder.Implementation<E>() {
          public <T> DataResult<E> decode(DynamicOps<T> ops, MapLike<T> input) {
             return RecordCodecBuilder.this.decoder.decode(ops, input).map(decoderGetter).flatMap((decoder1) -> decoder1.decode(ops, input).map(Function.identity()));
          }
@@ -89,13 +81,13 @@ public final class RecordCodecBuilder<O, F> implements App<RecordCodecBuilder.Mu
 
    public static <O> MapCodec<O> build(App<RecordCodecBuilder.Mu<O>, O> builderBox) {
       final RecordCodecBuilder<O, O> builder = unbox(builderBox);
-      return new MapCodec<O>() {
+      return new MapCodec<>() {
          public <T> DataResult<O> decode(DynamicOps<T> ops, MapLike<T> input) {
             return builder.decoder.decode(ops, input);
          }
 
          public <T> RecordBuilder<T> encode(O input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
-            return ((MapEncoder)builder.encoder.apply(input)).encode(input, ops, prefix);
+            return builder.encoder.apply(input).encode(input, ops, prefix);
          }
 
          public <T> Stream<T> keys(DynamicOps<T> ops) {
@@ -129,10 +121,10 @@ public final class RecordCodecBuilder<O, F> implements App<RecordCodecBuilder.Mu
          return (fa) -> {
             final RecordCodecBuilder<O, Function<A, R>> f = RecordCodecBuilder.unbox(function);
             final RecordCodecBuilder<O, A> a = RecordCodecBuilder.unbox(fa);
-            return new RecordCodecBuilder((o) -> f.getter.apply((O) o).apply(a.getter.apply((O) o)), (o) -> {
-               final MapEncoder<Function<A, R>> fEnc = f.encoder.apply((O) o);
-               final MapEncoder<A> aEnc = a.encoder.apply((O) o);
-               final A aFromO = a.getter.apply((O) o);
+            return new RecordCodecBuilder<>((o) -> f.getter.apply(o).apply(a.getter.apply(o)), (o) -> {
+               final MapEncoder<Function<A, R>> fEnc = f.encoder.apply(o);
+               final MapEncoder<A> aEnc = a.encoder.apply(o);
+               final A aFromO = a.getter.apply(o);
                return new MapEncoder.Implementation<R>() {
                   public <T> RecordBuilder<T> encode(R input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
                      aEnc.encode(aFromO, ops, prefix);
@@ -172,12 +164,12 @@ public final class RecordCodecBuilder<O, F> implements App<RecordCodecBuilder.Mu
          final RecordCodecBuilder<O, BiFunction<A, B, R>> function = RecordCodecBuilder.unbox(func);
          final RecordCodecBuilder<O, A> fa = RecordCodecBuilder.unbox(a);
          final RecordCodecBuilder<O, B> fb = RecordCodecBuilder.unbox(b);
-         return new RecordCodecBuilder((o) -> function.getter.apply((O) o).apply(fa.getter.apply((O) o), fb.getter.apply((O) o)), (o) -> {
-            final MapEncoder<BiFunction<A, B, R>> fEncoder = function.encoder.apply((O) o);
-            final MapEncoder<A> aEncoder = fa.encoder.apply((O) o);
-            final A aFromO = fa.getter.apply((O) o);
-            final MapEncoder<B> bEncoder = fb.encoder.apply((O) o);
-            final B bFromO = fb.getter.apply((O) o);
+         return new RecordCodecBuilder<>((o) -> function.getter.apply(o).apply(fa.getter.apply(o), fb.getter.apply(o)), (o) -> {
+            final MapEncoder<BiFunction<A, B, R>> fEncoder = function.encoder.apply(o);
+            final MapEncoder<A> aEncoder = fa.encoder.apply(o);
+            final A aFromO = fa.getter.apply(o);
+            final MapEncoder<B> bEncoder = fb.encoder.apply(o);
+            final B bFromO = fb.getter.apply(o);
             return new MapEncoder.Implementation<R>() {
                public <T> RecordBuilder<T> encode(R input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
                   aEncoder.encode(aFromO, ops, prefix);
@@ -216,14 +208,14 @@ public final class RecordCodecBuilder<O, F> implements App<RecordCodecBuilder.Mu
          final RecordCodecBuilder<O, T1> f1 = RecordCodecBuilder.unbox(t1);
          final RecordCodecBuilder<O, T2> f2 = RecordCodecBuilder.unbox(t2);
          final RecordCodecBuilder<O, T3> f3 = RecordCodecBuilder.unbox(t3);
-         return new RecordCodecBuilder((o) -> function.getter.apply((O) o).apply(f1.getter.apply((O) o), f2.getter.apply((O) o), f3.getter.apply((O) o)), (o) -> {
-            final MapEncoder<Function3<T1, T2, T3, R>> fEncoder = function.encoder.apply((O) o);
-            final MapEncoder<T1> e1 = f1.encoder.apply((O) o);
-            final T1 v1 = f1.getter.apply((O) o);
-            final MapEncoder<T2> e2 = f2.encoder.apply((O) o);
-            final T2 v2 = f2.getter.apply((O) o);
-            final MapEncoder<T3> e3 = f3.encoder.apply((O) o);
-            final T3 v3 = f3.getter.apply((O) o);
+         return new RecordCodecBuilder<>((o) -> function.getter.apply(o).apply(f1.getter.apply(o), f2.getter.apply(o), f3.getter.apply(o)), (o) -> {
+            final MapEncoder<Function3<T1, T2, T3, R>> fEncoder = function.encoder.apply(o);
+            final MapEncoder<T1> e1 = f1.encoder.apply(o);
+            final T1 v1 = f1.getter.apply(o);
+            final MapEncoder<T2> e2 = f2.encoder.apply(o);
+            final T2 v2 = f2.getter.apply(o);
+            final MapEncoder<T3> e3 = f3.encoder.apply(o);
+            final T3 v3 = f3.getter.apply(o);
             return new MapEncoder.Implementation<R>() {
                public <T> RecordBuilder<T> encode(R input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
                   e1.encode(v1, ops, prefix);
@@ -308,15 +300,15 @@ public final class RecordCodecBuilder<O, F> implements App<RecordCodecBuilder.Mu
       public <T, R> App<RecordCodecBuilder.Mu<O>, R> map(Function<? super T, ? extends R> func, App<RecordCodecBuilder.Mu<O>, T> ts) {
          RecordCodecBuilder<O, T> unbox = RecordCodecBuilder.unbox(ts);
          Function<O, T> getter = unbox.getter;
-         return new RecordCodecBuilder(getter.andThen(func), (o) -> new MapEncoder.Implementation<R>() {
+         return new RecordCodecBuilder<>(getter.andThen(func), (o) -> new MapEncoder.Implementation<R>() {
             private final MapEncoder encoder;
 
             {
-               this.encoder = unbox.encoder.apply((O) o);
+               this.encoder = unbox.encoder.apply(o);
             }
 
             public <U> RecordBuilder<U> encode(R input, DynamicOps<U> ops, RecordBuilder<U> prefix) {
-               return this.encoder.encode(getter.apply((O) o), ops, prefix);
+               return this.encoder.encode(getter.apply(o), ops, prefix);
             }
 
             public <U> Stream<U> keys(DynamicOps<U> ops) {

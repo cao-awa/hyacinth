@@ -35,6 +35,8 @@ public class SplitterHandler extends ByteToMessageDecoder {
                 packetByteBuf.release();
             }
         }
-        throw new CorruptedFrameException("length wider than 21-bit");
+        if (ctx.channel().isOpen()) {
+            throw new CorruptedFrameException("length wider than 21-bit");
+        }
     }
 }

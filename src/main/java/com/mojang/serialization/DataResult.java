@@ -20,7 +20,7 @@ public class DataResult<R> implements App<DataResult.Mu, R> {
     }
 
     public static <R> DataResult<R> unbox(App<DataResult.Mu, R> box) {
-        return (DataResult) box;
+        return (DataResult<R>) box;
     }
 
     public static <R> DataResult<R> success(R result) {
@@ -36,15 +36,15 @@ public class DataResult<R> implements App<DataResult.Mu, R> {
     }
 
     public static <R> DataResult<R> success(R result, Lifecycle experimental) {
-        return new DataResult(Either.left(result), experimental);
+        return new DataResult<>(Either.left(result), experimental);
     }
 
     public static <R> DataResult<R> error(String message, R partialResult, Lifecycle lifecycle) {
-        return new DataResult(Either.right(new DataResult.PartialResult(message, Optional.of(partialResult))), lifecycle);
+        return new DataResult<>(Either.right(new DataResult.PartialResult<>(message, Optional.of(partialResult))), lifecycle);
     }
 
     public static <R> DataResult<R> error(String message, Lifecycle lifecycle) {
-        return new DataResult(Either.right(new DataResult.PartialResult(message, Optional.empty())), lifecycle);
+        return new DataResult<>(Either.right(new DataResult.PartialResult<>(message, Optional.empty())), lifecycle);
     }
 
     public static <K, V> Function<K, DataResult<V>> partialGet(Function<K, V> partialGet, Supplier<String> errorPrefix) {
@@ -52,7 +52,7 @@ public class DataResult<R> implements App<DataResult.Mu, R> {
     }
 
     private static <R> DataResult<R> create(Either<R, DataResult.PartialResult<R>> result, Lifecycle lifecycle) {
-        return new DataResult(result, lifecycle);
+        return new DataResult<>(result, lifecycle);
     }
 
     private static String appendMessages(String first, String second) {
@@ -98,13 +98,13 @@ public class DataResult<R> implements App<DataResult.Mu, R> {
     }
 
     public <T> DataResult<T> map(Function<? super R, ? extends T> function) {
-        return create(this.result.mapBoth(function, (r) -> new PartialResult(r.message, r.partialResult.map(function))), this.lifecycle);
+        return create(this.result.mapBoth(function, (r) -> new PartialResult<>(r.message, r.partialResult.map(function))), this.lifecycle);
     }
 
     public DataResult<R> promotePartial(Consumer<String> onError) {
-        return this.result.map((r) -> new DataResult(Either.left(r), this.lifecycle), (r) -> {
+        return this.result.map((r) -> new DataResult<>(Either.left(r), this.lifecycle), (r) -> {
             onError.accept(r.message);
-            return r.partialResult.map((pr) -> new DataResult(Either.left(pr), this.lifecycle)).orElseGet(() -> create(Either.right(r), this.lifecycle));
+            return r.partialResult.map((pr) -> new DataResult<>(Either.left(pr), this.lifecycle)).orElseGet(() -> create(Either.right(r), this.lifecycle));
         });
     }
 
@@ -112,14 +112,14 @@ public class DataResult<R> implements App<DataResult.Mu, R> {
         return this.result.map((l) -> {
             DataResult<R2> second = function.apply(l);
             return create(second.get(), this.lifecycle.add(second.lifecycle));
-        }, (r) -> (DataResult) r.partialResult.map((value) -> {
+        }, (r) -> r.partialResult.map((value) -> {
             DataResult<R2> second = function.apply(value);
-            return create(Either.right(second.get().map((l2) -> new PartialResult(r.message, Optional.of(l2)), (r2) -> new PartialResult(appendMessages(r.message, r2.message), r2.partialResult))), this.lifecycle.add(second.lifecycle));
-        }).orElseGet(() -> create(Either.right(new PartialResult(r.message, Optional.empty())), this.lifecycle)));
+            return create(Either.right(second.get().map((l2) -> new PartialResult<>(r.message, Optional.of(l2)), (r2) -> new PartialResult<>(appendMessages(r.message, r2.message), r2.partialResult))), this.lifecycle.add(second.lifecycle));
+        }).orElseGet(() -> create(Either.right(new PartialResult<>(r.message, Optional.empty())), this.lifecycle)));
     }
 
     public <R2> DataResult<R2> ap(DataResult<Function<R, R2>> functionResult) {
-        return create(this.result.map((arg) -> functionResult.result.mapBoth((func) -> func.apply(arg), (funcError) -> new PartialResult(funcError.message, funcError.partialResult.map((f) -> f.apply(arg)))), (argError) -> Either.right(functionResult.result.map((func) -> new PartialResult(argError.message, argError.partialResult.map(func)), (funcError) -> new PartialResult(appendMessages(argError.message, funcError.message), argError.partialResult.flatMap((a) -> funcError.partialResult.map((f) -> f.apply(a))))))), this.lifecycle.add(functionResult.lifecycle));
+        return create(this.result.map((arg) -> functionResult.result.mapBoth((func) -> func.apply(arg), (funcError) -> new PartialResult<>(funcError.message, funcError.partialResult.map((f) -> f.apply(arg)))), (argError) -> Either.right(functionResult.result.map((func) -> new PartialResult<>(argError.message, argError.partialResult.map(func)), (funcError) -> new PartialResult<>(appendMessages(argError.message, funcError.message), argError.partialResult.flatMap((a) -> funcError.partialResult.map((f) -> f.apply(a))))))), this.lifecycle.add(functionResult.lifecycle));
     }
 
     public <R2, S> DataResult<S> apply2(BiFunction<R, R2, S> function, DataResult<R2> second) {
@@ -138,19 +138,19 @@ public class DataResult<R> implements App<DataResult.Mu, R> {
 
     public DataResult<R> setPartial(Supplier<R> partial) {
         return create(this.result.mapRight((r) -> {
-            return new DataResult.PartialResult(r.message, Optional.of(partial.get()));
+            return new DataResult.PartialResult<>(r.message, Optional.of(partial.get()));
         }), this.lifecycle);
     }
 
     public DataResult<R> setPartial(R partial) {
         return create(this.result.mapRight((r) -> {
-            return new DataResult.PartialResult(r.message, Optional.of(partial));
+            return new DataResult.PartialResult<>(r.message, Optional.of(partial));
         }), this.lifecycle);
     }
 
     public DataResult<R> mapError(UnaryOperator<String> function) {
         return create(this.result.mapRight((r) -> {
-            return new DataResult.PartialResult((String) function.apply(r.message), r.partialResult);
+            return new DataResult.PartialResult<>((String) function.apply(r.message), r.partialResult);
         }), this.lifecycle);
     }
 
@@ -166,7 +166,7 @@ public class DataResult<R> implements App<DataResult.Mu, R> {
         if(this == o) {
             return true;
         } else if(o != null && this.getClass() == o.getClass()) {
-            DataResult<?> that = (DataResult) o;
+            DataResult<?> that = (DataResult<?>) o;
             return Objects.equals(this.result, that.result);
         } else {
             return false;
@@ -219,37 +219,25 @@ public class DataResult<R> implements App<DataResult.Mu, R> {
         }
     }
 
-    public static class PartialResult<R> {
-        private final String message;
-        private final Optional<R> partialResult;
-
-        public PartialResult(String message, Optional<R> partialResult) {
-            this.message = message;
-            this.partialResult = partialResult;
-        }
-
+    public record PartialResult<R>(String message, Optional<R> partialResult) {
         public <R2> DataResult.PartialResult<R2> map(Function<? super R, ? extends R2> function) {
-            return new DataResult.PartialResult(this.message, this.partialResult.map(function));
+            return new DataResult.PartialResult<>(this.message, this.partialResult.map(function));
         }
 
         public <R2> DataResult.PartialResult<R2> flatMap(Function<R, DataResult.PartialResult<R2>> function) {
-            if(this.partialResult.isPresent()) {
+            if (this.partialResult.isPresent()) {
                 DataResult.PartialResult<R2> result = function.apply(this.partialResult.get());
-                return new DataResult.PartialResult(DataResult.appendMessages(this.message, result.message), result.partialResult);
+                return new DataResult.PartialResult<>(DataResult.appendMessages(this.message, result.message), result.partialResult);
             } else {
-                return new DataResult.PartialResult(this.message, Optional.empty());
+                return new DataResult.PartialResult<>(this.message, Optional.empty());
             }
         }
 
-        public String message() {
-            return this.message;
-        }
-
         public boolean equals(Object o) {
-            if(this == o) {
+            if (this == o) {
                 return true;
-            } else if(o != null && this.getClass() == o.getClass()) {
-                DataResult.PartialResult<?> that = (DataResult.PartialResult) o;
+            } else if (o != null && this.getClass() == o.getClass()) {
+                DataResult.PartialResult<?> that = (DataResult.PartialResult<?>) o;
                 return Objects.equals(this.message, that.message) && Objects.equals(this.partialResult, that.partialResult);
             } else {
                 return false;

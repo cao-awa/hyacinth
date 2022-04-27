@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class PacketEncoder
         extends MessageToByteEncoder<Packet<?>> {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger("Packet:Encoder");
 //    private static final Marker MARKER = MarkerManager.getMarker("PACKET_SENT", ClientConnection.NETWORK_PACKETS_MARKER);
     private final NetworkSide side;
 
@@ -45,7 +45,7 @@ public class PacketEncoder
             if (j > 8388608) {
                 throw new IllegalArgumentException("Packet too big (is " + j + ", should be less than 8388608): " + packet);
             }
-            int k = channelHandlerContext.channel().attr(ClientConnection.PROTOCOL_ATTRIBUTE_KEY).get().getId();
+            channelHandlerContext.channel().attr(ClientConnection.PROTOCOL_ATTRIBUTE_KEY).get().getId();
         }
         catch (Throwable i) {
             LOGGER.error(i);

@@ -7,9 +7,9 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.stream.Stream;
 
 public final class KeyCompressor<T> {
-   private final Int2ObjectMap<T> decompress = new Int2ObjectArrayMap();
-   private final Object2IntMap<T> compress = new Object2IntArrayMap();
-   private final Object2IntMap<String> compressString = new Object2IntArrayMap();
+   private final Int2ObjectMap<T> decompress = new Int2ObjectArrayMap<>();
+   private final Object2IntMap<T> compress = new Object2IntArrayMap<>();
+   private final Object2IntMap<String> compressString = new Object2IntArrayMap<>();
    private final int size;
    private final DynamicOps<T> ops;
 

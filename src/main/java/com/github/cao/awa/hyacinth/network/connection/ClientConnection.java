@@ -157,6 +157,7 @@ public class ClientConnection extends SimpleChannelInboundHandler<Packet<?>> {
     public void setState(NetworkState state) {
         channel.attr(PROTOCOL_ATTRIBUTE_KEY).set(state);
         channel.config().setAutoRead(true);
+        LOGGER.debug("Enabled auto read");
     }
 
     protected void updateStats() {

@@ -5,27 +5,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
-import com.mojang.serialization.RecordBuilder;
 import java.util.Map;
 import java.util.Objects;
 
-public final class UnboundedMapCodec<K, V> implements BaseMapCodec<K, V>, Codec<Map<K, V>> {
-   private final Codec<K> keyCodec;
-   private final Codec<V> elementCodec;
-
-   public UnboundedMapCodec(Codec<K> keyCodec, Codec<V> elementCodec) {
-      this.keyCodec = keyCodec;
-      this.elementCodec = elementCodec;
-   }
-
-   public Codec<K> keyCodec() {
-      return this.keyCodec;
-   }
-
-   public Codec<V> elementCodec() {
-      return this.elementCodec;
-   }
-
+public record UnboundedMapCodec<K, V>(Codec<K> keyCodec,
+                                      Codec<V> elementCodec) implements BaseMapCodec<K, V>, Codec<Map<K, V>> {
    public <T> DataResult<Pair<Map<K, V>, T>> decode(DynamicOps<T> ops, T input) {
       return ops.getMap(input).setLifecycle(Lifecycle.stable()).flatMap((map) -> this.decode(ops, map)).map((r) -> Pair.of(r, input));
    }
@@ -38,7 +22,7 @@ public final class UnboundedMapCodec<K, V> implements BaseMapCodec<K, V>, Codec<
       if (this == o) {
          return true;
       } else if (o != null && this.getClass() == o.getClass()) {
-         UnboundedMapCodec<?, ?> that = (UnboundedMapCodec)o;
+         UnboundedMapCodec<?, ?> that = (UnboundedMapCodec<?,?>) o;
          return Objects.equals(this.keyCodec, that.keyCodec) && Objects.equals(this.elementCodec, that.elementCodec);
       } else {
          return false;

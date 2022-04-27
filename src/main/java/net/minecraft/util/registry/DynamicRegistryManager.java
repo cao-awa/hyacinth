@@ -186,15 +186,13 @@ public abstract class DynamicRegistryManager {
 
         private static <E> Codec<Impl> setupCodec() {
             Codec<RegistryKey> codec = Identifier.CODEC.xmap(RegistryKey::ofRegistry, RegistryKey::getValue);
-            Codec<SimpleRegistry> codec2 = codec.partialDispatch("type", simpleRegistry -> DataResult.success(((SimpleRegistry)simpleRegistry).getKey()), registryKey -> Impl.getDataResultForCodec(registryKey).map(codec1 -> SimpleRegistry.createRegistryManagerCodec(registryKey, Lifecycle.experimental(), ((Codec<E>)codec1))));
+            Codec<SimpleRegistry> codec2 = codec.partialDispatch("type", (SimpleRegistry simpleRegistry) -> DataResult.success(simpleRegistry.getKey()), registryKey -> Impl.getDataResultForCodec(registryKey).map(codec1 -> SimpleRegistry.createRegistryManagerCodec(registryKey, Lifecycle.experimental(), ((Codec<E>)codec1))));
             UnboundedMapCodec<RegistryKey, SimpleRegistry> unboundedMapCodec = Codec.unboundedMap(codec, codec2);
             return Impl.fromRegistryCodecs(unboundedMapCodec);
         }
 
         private static <K extends RegistryKey<? extends Registry<?>>, V extends SimpleRegistry<?>> Codec<Impl> fromRegistryCodecs(UnboundedMapCodec<K, V> unboundedMapCodec) {
-            return unboundedMapCodec.xmap(Impl::new, impl -> {
-                return impl.registries.entrySet().stream().filter(entry -> INFOS.get(entry.getKey()).isSynced()).collect(ImmutableMap.toImmutableMap(entry1 -> (K)entry1.getKey(), entry2 -> (V)entry2.getValue()));
-            });
+            return unboundedMapCodec.xmap(Impl::new, impl -> impl.registries.entrySet().stream().filter(entry -> INFOS.get(entry.getKey()).isSynced()).collect(ImmutableMap.toImmutableMap(entry1 -> (K)entry1.getKey(), entry2 -> (V)entry2.getValue())));
         }
 
         private static <E> DataResult<? extends Codec<E>> getDataResultForCodec(RegistryKey<? extends Registry<E>> registryRef) {

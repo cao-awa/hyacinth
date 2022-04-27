@@ -16,11 +16,11 @@ public interface MapDecoder<A> extends Keyable {
    default <T> DataResult<A> compressedDecode(DynamicOps<T> ops, T input) {
       if (ops.compressMaps()) {
          Optional<Consumer<Consumer<T>>> inputList = ops.getList(input).result();
-         if (!inputList.isPresent()) {
+         if (inputList.isEmpty()) {
             return DataResult.error("Input is not a list");
          } else {
             final KeyCompressor<T> compressor = this.compressor(ops);
-            final List<T> entries = new ArrayList();
+            final List<T> entries = new ArrayList<>();
             inputList.get().accept(entries::add);
             MapLike<T> map = new MapLike<T>() {
                @Nullable
@@ -73,13 +73,11 @@ public interface MapDecoder<A> extends Keyable {
          }
 
          public <T> DataResult<B> decode(DynamicOps<T> ops, MapLike<T> input) {
-            return MapDecoder.this.decode(ops, input).flatMap((b) -> {
-               return ((DataResult)function.apply(b)).map(Function.identity());
-            });
+            return MapDecoder.this.decode(ops, input).flatMap((b) -> function.apply(b).map(Function.identity()));
          }
 
          public String toString() {
-            return MapDecoder.this.toString() + "[flatMapped]";
+            return MapDecoder.this + "[flatMapped]";
          }
       };
    }
@@ -95,7 +93,7 @@ public interface MapDecoder<A> extends Keyable {
          }
 
          public String toString() {
-            return MapDecoder.this.toString() + "[mapped]";
+            return MapDecoder.this + "[mapped]";
          }
       };
    }
@@ -115,7 +113,7 @@ public interface MapDecoder<A> extends Keyable {
          }
 
          public String toString() {
-            return decoder.toString() + " * " + MapDecoder.this.toString();
+            return decoder.toString() + " * " + MapDecoder.this;
          }
       };
    }
@@ -136,6 +134,6 @@ public interface MapDecoder<A> extends Keyable {
       };
    }
 
-   public abstract static class Implementation<A> extends CompressorHolder implements MapDecoder<A> {
+   abstract class Implementation<A> extends CompressorHolder implements MapDecoder<A> {
    }
 }

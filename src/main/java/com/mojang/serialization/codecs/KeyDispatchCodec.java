@@ -22,7 +22,7 @@ public class KeyDispatchCodec<K, V> extends MapCodec<V> {
    private final boolean assumeMap;
 
    public static <K, V> KeyDispatchCodec<K, V> unsafe(String typeKey, Codec<K> keyCodec, Function<? super V, ? extends DataResult<? extends K>> type, Function<? super K, ? extends DataResult<? extends Decoder<? extends V>>> decoder, Function<? super V, ? extends DataResult<? extends Encoder<V>>> encoder) {
-      return new KeyDispatchCodec(typeKey, keyCodec, type, decoder, encoder, true);
+      return new KeyDispatchCodec<>(typeKey, keyCodec, type, decoder, encoder, true);
    }
 
    protected KeyDispatchCodec(String typeKey, Codec<K> keyCodec, Function<? super V, ? extends DataResult<? extends K>> type, Function<? super K, ? extends DataResult<? extends Decoder<? extends V>>> decoder, Function<? super V, ? extends DataResult<? extends Encoder<V>>> encoder, boolean assumeMap) {
@@ -59,7 +59,7 @@ public class KeyDispatchCodec<K, V> extends MapCodec<V> {
    public <T> RecordBuilder<T> encode(V input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
       DataResult<? extends Encoder<V>> elementEncoder = this.encoder.apply(input);
       RecordBuilder<T> builder = prefix.withErrorsFrom(elementEncoder);
-      if (!elementEncoder.result().isPresent()) {
+      if (elementEncoder.result().isEmpty()) {
          return builder;
       } else {
          Encoder<V> c = elementEncoder.result().get();

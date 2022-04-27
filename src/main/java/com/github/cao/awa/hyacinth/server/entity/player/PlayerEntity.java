@@ -10,11 +10,12 @@ import java.util.UUID;
 
 public abstract class PlayerEntity extends LivingEntity {
     public static final String OFFLINE_PLAYER_UUID_PREFIX = "OfflinePlayer:";
+    private final GameProfile gameProfile;
 
     public PlayerEntity(World world, BlockPos pos, float yaw, GameProfile profile) {
         super(EntityType.PLAYER, world);
         this.setUuid(PlayerEntity.getUuidFromProfile(profile));
-//        this.gameProfile = profile;
+        this.gameProfile = profile;
 //        this.playerScreenHandler = new PlayerScreenHandler(this.inventory, !world.isClient, this);
 //        this.currentScreenHandler = this.playerScreenHandler;
 //        this.refreshPositionAndAngles((double)pos.getX() + 0.5, pos.getY() + 1, (double)pos.getZ() + 0.5, yaw, 0.0f);
@@ -35,5 +36,9 @@ public abstract class PlayerEntity extends LivingEntity {
 
     public boolean isPlayer() {
         return true;
+    }
+
+    public GameProfile getGameProfile() {
+        return this.gameProfile;
     }
 }

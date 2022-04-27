@@ -2,14 +2,7 @@ package com.github.cao.awa.hyacinth.logging;
 
 import org.apache.logging.log4j.Logger;
 
-public class UncaughtExceptionHandler
-implements Thread.UncaughtExceptionHandler {
-    private final Logger logger;
-
-    public UncaughtExceptionHandler(Logger logger) {
-        this.logger = logger;
-    }
-
+public record UncaughtExceptionHandler(Logger logger) implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread thread, Throwable throwable) {
         this.logger.error("Caught previously unhandled exception :");

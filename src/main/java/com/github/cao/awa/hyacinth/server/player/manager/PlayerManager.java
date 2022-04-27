@@ -4,8 +4,9 @@ import com.github.cao.awa.hyacinth.network.connection.ClientConnection;
 import com.github.cao.awa.hyacinth.network.handler.play.ServerPlayNetworkHandler;
 import com.github.cao.awa.hyacinth.network.packet.*;
 import com.github.cao.awa.hyacinth.network.packet.buf.PacketByteBuf;
+import com.github.cao.awa.hyacinth.network.packet.s2c.disconnect.*;
 import com.github.cao.awa.hyacinth.network.packet.s2c.play.*;
-import com.github.cao.awa.hyacinth.network.text.Text;
+import com.github.cao.awa.hyacinth.network.text.*;
 import com.github.cao.awa.hyacinth.network.text.translate.TranslatableText;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
 import com.github.cao.awa.hyacinth.server.dimension.DimensionType;
@@ -144,13 +145,16 @@ public class PlayerManager {
 //        WorldProperties worldProperties = serverWorld2.getLevelProperties();
 //        networkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.CREATIVE, GameMode.CREATIVE, 0, server.getMaxPlayerCount(), 12, 12, false, false, false, true));
         networkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), false, GameMode.CREATIVE, GameMode.CREATIVE, this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), 0, server.getMaxPlayerCount(), 12,12, false, false, false, true));
-//        networkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), worldProperties.isHardcore(), player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), BiomeAccess.hashSeed(world2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, world2.isDebugWorld(), world2.isFlat()));
-        networkHandler.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, new PacketByteBuf(Unpooled.buffer()).writeString(this.getServer().getServerModName())));
-//        serverPlayNetworkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
-//        serverPlayNetworkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
-//        serverPlayNetworkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(player.getInventory().selectedSlot));
-//        serverPlayNetworkHandler.sendPacket(new SynchronizeRecipesS2CPacket(this.server.getRecipeManager().values()));
-//        serverPlayNetworkHandler.sendPacket(new SynchronizeTagsS2CPacket(this.server.getTagManager().toPacket(this.registryManager)));
+
+        //        networkHandler.sendPacket(new GameJoinS2CPacket(player.getId(), worldProperties.isHardcore(), player.interactionManager.getGameMode(), player.interactionManager.getPreviousGameMode(), this.server.getWorldRegistryKeys(), this.registryManager, world2.getDimension(), world2.getRegistryKey(), BiomeAccess.hashSeed(world2.getSeed()), this.getMaxPlayerCount(), this.viewDistance, this.simulationDistance, bl2, !bl, world2.isDebugWorld(), world2.isFlat()));
+//        networkHandler.sendPacket(new CustomPayloadS2CPacket(CustomPayloadS2CPacket.BRAND, new PacketByteBuf(Unpooled.buffer()).writeString(this.getServer().getServerModName())));
+//        networkHandler.sendPacket(new DifficultyS2CPacket(worldProperties.getDifficulty(), worldProperties.isDifficultyLocked()));
+//        networkHandler.sendPacket(new PlayerAbilitiesS2CPacket(player.getAbilities()));
+//        networkHandler.sendPacket(new UpdateSelectedSlotS2CPacket(player.getInventory().selectedSlot));
+//        networkHandler.sendPacket(new SynchronizeRecipesS2CPacket(this.server.getRecipeManager().values()));
+//        networkHandler.sendPacket(new SynchronizeTagsS2CPacket(this.server.getTagManager().toPacket(this.registryManager)));
+
+//        player.networkHandler.sendPacket(new PlayerListS2CPacket(PlayerListS2CPacket.Action.ADD_PLAYER, serverPlayerEntity));
         System.out.println("connecting");
     }
 

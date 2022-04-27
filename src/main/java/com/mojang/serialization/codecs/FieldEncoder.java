@@ -28,7 +28,7 @@ public class FieldEncoder<A> extends MapEncoder.Implementation<A> {
       if (this == o) {
          return true;
       } else if (o != null && this.getClass() == o.getClass()) {
-         FieldEncoder<?> that = (FieldEncoder)o;
+         FieldEncoder<?> that = (FieldEncoder<?>)o;
          return Objects.equals(this.name, that.name) && Objects.equals(this.elementCodec, that.elementCodec);
       } else {
          return false;

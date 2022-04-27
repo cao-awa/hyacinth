@@ -316,7 +316,7 @@ public interface Codec<A> extends Encoder<A>, Decoder<A> {
    }
 
    default <S> Codec<S> comapFlatMap(Function<? super A, ? extends DataResult<? extends S>> to, Function<? super S, ? extends A> from) {
-      return of(this.comap(from), this.flatMap(to), this.toString() + "[comapFlatMapped]");
+      return of(this.comap(from), this.flatMap(to), this + "[comapFlatMapped]");
    }
 
    default <S> Codec<S> flatComapMap(Function<? super A, ? extends S> to, Function<? super S, ? extends DataResult<? extends A>> from) {

@@ -12,8 +12,10 @@ import com.github.zhuaidadaya.rikaishinikui.handler.universal.entrust.EntrustPar
 import org.apache.commons.lang3.math.NumberUtils;
 
 public final class Mathematics {
-    private static final int field_29850 = 1024;
-    private static final float field_29851 = 1024.0f;
+    private static final int KILO = 1024;
+    private static final float KILOF = 1024.0f;
+    private static final float HALF = .5f;
+    private static final float QUARTER = .25f;
     private static final long field_29852 = 61440L;
     private static final long HALF_PI_RADIANS_SINE_TABLE_INDEX = 16384L;
     private static final long field_29854 = -4611686018427387904L;
@@ -63,7 +65,7 @@ public final class Mathematics {
     }
 
     public static int fastFloor(double value) {
-        return (int)(value + 1024.0) - 1024;
+        return (int)(value + KILOF) - KILO;
     }
 
     public static int floor(double value) {
@@ -433,10 +435,10 @@ public final class Mathematics {
     }
 
     public static Vec3d method_34946(Vec3d vec3d, Vec3d vec3d2, Vec3d vec3d3, Vec3d vec3d4, double d) {
-        double e = ((-d + 2.0) * d - 1.0) * d * 0.5;
-        double f = ((3.0 * d - 5.0) * d * d + 2.0) * 0.5;
-        double g = ((-3.0 * d + 4.0) * d + 1.0) * d * 0.5;
-        double h = (d - 1.0) * d * d * 0.5;
+        double e = ((-d + 2.0) * d - 1.0) * d * HALF;
+        double f = ((3.0 * d - 5.0) * d * d + 2.0) * HALF;
+        double g = ((-3.0 * d + 4.0) * d + 1.0) * d * HALF;
+        double h = (d - 1.0) * d * d * HALF;
         return new Vec3d(vec3d.x * e + vec3d2.x * f + vec3d3.x * g + vec3d4.x * h, vec3d.y * e + vec3d2.y * f + vec3d3.y * g + vec3d4.y * h, vec3d.z * e + vec3d2.z * f + vec3d3.z * g + vec3d4.z * h);
     }
 
@@ -478,20 +480,20 @@ public final class Mathematics {
     }
 
     public static boolean method_34945(Vec3d vec3d, Vec3d vec3d2, Box box) {
-        double d = (box.minX + box.maxX) * 0.5;
-        double e = (box.maxX - box.minX) * 0.5;
+        double d = (box.minX + box.maxX) * HALF;
+        double e = (box.maxX - box.minX) * HALF;
         double f = vec3d.x - d;
         if (Math.abs(f) > e && f * vec3d2.x >= 0.0) {
             return false;
         }
-        double g = (box.minY + box.maxY) * 0.5;
-        double h = (box.maxY - box.minY) * 0.5;
+        double g = (box.minY + box.maxY) * HALF;
+        double h = (box.maxY - box.minY) * HALF;
         double i = vec3d.y - g;
         if (Math.abs(i) > h && i * vec3d2.y >= 0.0) {
             return false;
         }
-        double j = (box.minZ + box.maxZ) * 0.5;
-        double k = (box.maxZ - box.minZ) * 0.5;
+        double j = (box.minZ + box.maxZ) * HALF;
+        double k = (box.maxZ - box.minZ) * HALF;
         double l = vec3d.z - j;
         if (Math.abs(l) > k && l * vec3d2.z >= 0.0) {
             return false;
@@ -557,7 +559,7 @@ public final class Mathematics {
     }
 
     public static float fastInverseSqrt(float x) {
-        float f = 0.5f * x;
+        float f = HALF * x;
         int i = Float.floatToIntBits(x);
         i = 1597463007 - (i >> 1);
         x = Float.intBitsToFloat(i);
@@ -566,7 +568,7 @@ public final class Mathematics {
     }
 
     public static double fastInverseSqrt(double x) {
-        double d = 0.5 * x;
+        double d = HALF * x;
         long l = Double.doubleToRawLongBits(x);
         l = 6910469410427058090L - (l >> 1);
         x = Double.longBitsToDouble(l);
@@ -805,7 +807,7 @@ public final class Mathematics {
     }
 
     public static float wrap(float value, float maxDeviation) {
-        return (Math.abs(value % maxDeviation - maxDeviation * 0.5f) - maxDeviation * 0.25f) / (maxDeviation * 0.25f);
+        return (Math.abs(value % maxDeviation - maxDeviation * HALF) - maxDeviation * QUARTER) / (maxDeviation * QUARTER);
     }
 
     public static float square(float n) {
@@ -894,8 +896,8 @@ public final class Mathematics {
     }
 
     public static Point intersection(Point pointX, Point pointY) {
-        double k1 = Math.tan(pointX.angle() * DG), b1 = pointX.y() - k1 * pointX.x();
-        double k2 = Math.tan(pointY.angle() * DG), b2 = pointY.y() - k2 * pointX.x();
+        double k1 = Math.tan((pointX.angle() % 360f) * DG), b1 = pointX.y() - k1 * pointX.x();
+        double k2 = Math.tan((pointY.angle() % 360f) * DG), b2 = pointY.y() - k2 * pointX.x();
 
         double y = (k2 * b1 - k1 * b2) / (k2 - k1);
         double x = (y - b1) / k1;

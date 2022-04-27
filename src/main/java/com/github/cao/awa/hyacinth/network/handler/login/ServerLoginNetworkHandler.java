@@ -13,7 +13,7 @@ import com.github.cao.awa.hyacinth.network.packet.s2c.login.LoginCompressionS2CP
 import com.github.cao.awa.hyacinth.network.packet.s2c.login.LoginDisconnectS2CPacket;
 import com.github.cao.awa.hyacinth.network.packet.s2c.login.LoginHelloS2CPacket;
 import com.github.cao.awa.hyacinth.network.packet.s2c.login.LoginSuccessS2CPacket;
-import com.github.cao.awa.hyacinth.network.text.Text;
+import com.github.cao.awa.hyacinth.network.text.*;
 import com.github.cao.awa.hyacinth.network.text.translate.TranslatableText;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
 import com.github.cao.awa.hyacinth.server.entity.player.PlayerEntity;

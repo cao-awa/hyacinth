@@ -63,7 +63,7 @@ public class DimensionType {
                     dimensionType -> ((DimensionType) dimensionType).effects),
             (Codec.FLOAT.fieldOf("ambient_light")).forGetter(
                     dimensionType -> ((DimensionType) dimensionType).ambientLight)
-    ).apply(instance, (Function16)null)).comapFlatMap(type -> checkHeight(((DimensionType)type)), Function.identity());
+    ).apply(instance, DimensionType::new)).comapFlatMap(type -> checkHeight(((DimensionType)type)), Function.identity());
     private static final int field_31440 = 8;
     public static final float[] MOON_SIZES = new float[]{1.0f, 0.75f, 0.5f, 0.25f, 0.0f, 0.25f, 0.5f, 0.75f};
     public static final RegistryKey<DimensionType> OVERWORLD_REGISTRY_KEY = RegistryKey.of(Registry.DIMENSION_TYPE_KEY, new Identifier("overworld"));

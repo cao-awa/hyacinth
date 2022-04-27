@@ -8,10 +8,11 @@ import com.github.cao.awa.hyacinth.network.packet.listener.query.ServerQueryPack
 import com.github.cao.awa.hyacinth.network.packet.s2c.query.QueryResponseS2CPacket;
 import com.github.cao.awa.hyacinth.network.text.LiteralText;
 import com.github.cao.awa.hyacinth.network.text.Text;
+import com.github.cao.awa.hyacinth.network.text.translate.*;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
 
 public class ServerQueryNetworkHandler implements ServerQueryPacketListener {
-    private static final Text REQUEST_HANDLED = new LiteralText("multiplayer.status.request_handled");
+    private static final Text REQUEST_HANDLED = new TranslatableText("multiplayer.status.request_handled");
     private final MinecraftServer server;
     private final ClientConnection connection;
     private boolean responseSent;

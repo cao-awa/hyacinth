@@ -35,7 +35,7 @@ public interface Decoder<A> {
    }
 
    default MapDecoder<A> fieldOf(String name) {
-      return new FieldDecoder(name, this);
+      return new FieldDecoder<>(name, this);
    }
 
    default <B> Decoder<B> flatMap(final Function<? super A, ? extends DataResult<? extends B>> function) {
@@ -49,7 +49,7 @@ public interface Decoder<A> {
          }
 
          public String toString() {
-            return Decoder.this.toString() + "[flatMapped]";
+            return this + "[flatMapped]";
          }
       };
    }

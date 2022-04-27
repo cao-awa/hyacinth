@@ -5,18 +5,26 @@ import com.github.cao.awa.hyacinth.network.packet.Packet;
 import com.github.cao.awa.hyacinth.network.packet.c2s.play.*;
 import com.github.cao.awa.hyacinth.network.packet.listener.play.ServerPlayPacketListener;
 import com.github.cao.awa.hyacinth.network.packet.s2c.disconnect.DisconnectS2CPacket;
+import com.github.cao.awa.hyacinth.network.packet.s2c.play.*;
 import com.github.cao.awa.hyacinth.network.text.Text;
+import com.github.cao.awa.hyacinth.network.text.translate.*;
 import com.github.cao.awa.hyacinth.server.MinecraftServer;
 import com.github.cao.awa.hyacinth.server.entity.player.ServerPlayerEntity;
 import com.github.cao.awa.hyacinth.server.world.listener.EntityTrackingListener;
+import com.github.zhuaidadaya.rikaishinikui.handler.times.*;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.apache.logging.log4j.*;
 import org.jetbrains.annotations.Nullable;
 
 public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerPlayPacketListener {
+    private static final Logger LOGGER = LogManager.getLogger("Handler:Play");
     private ClientConnection connection;
     private MinecraftServer server;
     private ServerPlayerEntity player;
+    private boolean waitingForKeepAlive;
+    private long keepAliveId;
+    private long lastKeepAliveTime;
 
     public ServerPlayNetworkHandler(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player) {
         this.server = server;
@@ -24,10 +32,73 @@ public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerP
         connection.setPacketListener(this);
         this.player = player;
         player.networkHandler = this;
-//        player.getTextStream().onConnect();
+        player.getTextStream().onConnect();
     }
 
     public void tick() {
+//        this.syncWithPlayerPosition();
+        this.player.prevX = this.player.getX();
+        this.player.prevY = this.player.getY();
+        this.player.prevZ = this.player.getZ();
+//        this.player.playerTick();
+//        this.player.updatePositionAndAngles(this.lastTickX, this.lastTickY, this.lastTickZ, this.player.getYaw(), this.player.getPitch());
+//        ++ this.ticks;
+//        this.lastTickMovePacketsCount = this.movePacketsCount;
+//        if(this.floating && ! this.player.isSleeping()) {
+//            if(++ this.floatingTicks > 80) {
+//                LOGGER.warn("{} was kicked for floating too long!", this.player.getName().getString());
+//                this.disconnect(new TranslatableText("multiplayer.disconnect.flying"));
+//                return;
+//            }
+//        } else {
+//            this.floating = false;
+//            this.floatingTicks = 0;
+//        }
+//        this.topmostRiddenEntity = this.player.getRootVehicle();
+//        if(this.topmostRiddenEntity == this.player || this.topmostRiddenEntity.getPrimaryPassenger() != this.player) {
+//            this.topmostRiddenEntity = null;
+//            this.vehicleFloating = false;
+//            this.vehicleFloatingTicks = 0;
+//        } else {
+//            this.lastTickRiddenX = this.topmostRiddenEntity.getX();
+//            this.lastTickRiddenY = this.topmostRiddenEntity.getY();
+//            this.lastTickRiddenZ = this.topmostRiddenEntity.getZ();
+//            this.updatedRiddenX = this.topmostRiddenEntity.getX();
+//            this.updatedRiddenY = this.topmostRiddenEntity.getY();
+//            this.updatedRiddenZ = this.topmostRiddenEntity.getZ();
+//            if(this.vehicleFloating && this.player.getRootVehicle().getPrimaryPassenger() == this.player) {
+//                if(++ this.vehicleFloatingTicks > 80) {
+//                    LOGGER.warn("{} was kicked for floating a vehicle too long!", this.player.getName().getString());
+//                    this.disconnect(new TranslatableText("multiplayer.disconnect.flying"));
+//                    return;
+//                }
+//            } else {
+//                this.vehicleFloating = false;
+//                this.vehicleFloatingTicks = 0;
+//            }
+//        }
+        this.server.getProfiler().push("keepAlive");
+        long l = TimeUtil.measuringTimeMillions();
+        if(l - this.lastKeepAliveTime >= 15000L) {
+            if(this.waitingForKeepAlive) {
+                this.disconnect(new TranslatableText("disconnect.timeout"));
+            } else {
+                this.waitingForKeepAlive = true;
+                this.lastKeepAliveTime = l;
+                this.keepAliveId = l;
+                this.sendPacket(new KeepAliveS2CPacket(this.keepAliveId));
+            }
+        }
+        this.server.getProfiler().pop();
+//        if(this.messageCooldown > 0) {
+//            -- this.messageCooldown;
+//        }
+//        if(this.creativeItemDropThreshold > 0) {
+//            -- this.creativeItemDropThreshold;
+//        }
+        if(this.player.getLastActionTime() > 0L && this.server.getPlayerIdleTimeout() > 0 && TimeUtil.measuringTimeMillions() - this.player.getLastActionTime() > (this.server.getPlayerIdleTimeout() * 1000L * 60L)) {
+            this.disconnect(new TranslatableText("multiplayer.disconnect.idling"));
+        }
     }
 
     public void disconnect(Text reason) {
@@ -59,7 +130,14 @@ public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerP
 
     @Override
     public void onDisconnected(Text reason) {
+        LOGGER.info("{} lost connection: {}", this.getConnectionInfo(), reason.getString());
+    }
 
+    public String getConnectionInfo() {
+        if (this.player.getGameProfile() != null) {
+            return this.player.getGameProfile() + " (" + this.connection.getAddress() + ")";
+        }
+        return String.valueOf(this.connection.getAddress());
     }
 
     @Override
@@ -88,8 +166,14 @@ public class ServerPlayNetworkHandler implements EntityTrackingListener, ServerP
     }
 
     @Override
-    public void onKeepAlive(KeepAliveC2SPacket var1) {
-
+    public void onKeepAlive(KeepAliveC2SPacket packet) {
+        if(this.waitingForKeepAlive && packet.getId() == this.keepAliveId) {
+            int i = (int) (TimeUtil.measuringTimeMillions() - this.lastKeepAliveTime);
+            this.player.pingMilliseconds = (this.player.pingMilliseconds * 3 + i) / 4;
+            this.waitingForKeepAlive = false;
+        } else {
+            this.disconnect(new TranslatableText("disconnect.timeout"));
+        }
     }
 
     @Override

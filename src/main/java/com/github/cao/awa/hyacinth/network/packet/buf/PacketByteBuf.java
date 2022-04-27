@@ -23,10 +23,8 @@ import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.*;
 import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
 
 public class PacketByteBuf extends ByteBuf {
     public static final short DEFAULT_MAX_STRING_LENGTH = Short.MAX_VALUE;
@@ -740,6 +738,22 @@ public class PacketByteBuf extends ByteBuf {
      */
     public <T extends Enum<T>> T readEnumConstant(Class<T> enumClass) {
         return (T) ((Enum[]) enumClass.getEnumConstants())[this.readVarInt()];
+    }
+
+    /**
+     * Iterates a collection from this buf. The collection is stored as a leading
+     * {@linkplain #readVarInt() var int} {@code size} followed by the entries
+     * sequentially. The {@code consumer} will be called {@code size} times.
+     *
+     * @param consumer
+     *         the consumer to read entries
+     * @see #readCollection(IntFunction, Function)
+     */
+    public void forEachInCollection(Consumer<PacketByteBuf> consumer) {
+        int i = this.readVarInt();
+        for (int j = 0; j < i; ++ j) {
+            consumer.accept(this);
+        }
     }
 
     @Override
